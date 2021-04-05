@@ -11,7 +11,7 @@ Scene::~Scene() {
 	delete dis;
 }
 
-void Scene::addHexagonWalls(std::shared_ptr<Scene> scene) {
+void Scene::addHexagonWalls() {
 	// Material for scene room
 	std::shared_ptr<LambertianMaterial> diffuseWhite	= std::make_shared<LambertianMaterial>(glm::vec3(1.0f));
 	std::shared_ptr<LambertianMaterial> diffuseBlue		= std::make_shared<LambertianMaterial>(glm::vec3(0.0f, 1.0f, 0.0f));
@@ -35,40 +35,40 @@ void Scene::addHexagonWalls(std::shared_ptr<Scene> scene) {
 
 	// Add walls to scene
 	// Floor
-	scene->addTriangle(v0, v8, v10, diffuseWhite);
-	scene->addTriangle(v0, v12, v8, diffuseWhite);
-	scene->addTriangle(v0, v12, v2, diffuseWhite);
-	scene->addTriangle(v2, v6, v12, diffuseWhite);
-	scene->addTriangle(v12, v6, v8, diffuseWhite);
-	scene->addTriangle(v2, v4, v6, diffuseWhite);
+	addTriangle(v0, v8, v10, diffuseWhite);
+	addTriangle(v0, v12, v8, diffuseWhite);
+	addTriangle(v0, v12, v2, diffuseWhite);
+	addTriangle(v2, v6, v12, diffuseWhite);
+	addTriangle(v12, v6, v8, diffuseWhite);
+	addTriangle(v2, v4, v6, diffuseWhite);
 	// Roof
-	scene->addTriangle(v11, v9, v1, diffuseWhite);
-	scene->addTriangle(v1, v9, v13, diffuseWhite);
-	scene->addTriangle(v1, v13, v3, diffuseWhite);
-	scene->addTriangle(v13, v7, v3, diffuseWhite);
-	scene->addTriangle(v13, v9, v7, diffuseWhite);
-	scene->addTriangle(v3, v7, v5, diffuseWhite);
+	addTriangle(v11, v9, v1, diffuseWhite);
+	addTriangle(v1, v9, v13, diffuseWhite);
+	addTriangle(v1, v13, v3, diffuseWhite);
+	addTriangle(v13, v7, v3, diffuseWhite);
+	addTriangle(v13, v9, v7, diffuseWhite);
+	addTriangle(v3, v7, v5, diffuseWhite);
 	// Wall 1
-	scene->addTriangle(v1, v2, v0, diffuseBlue);
-	scene->addTriangle(v1, v3, v2, diffuseBlue);
+	addTriangle(v1, v2, v0, diffuseBlue);
+	addTriangle(v1, v3, v2, diffuseBlue);
 	// Wall 2
-	scene->addTriangle(v2, v3, v4, diffuseGreen);
-	scene->addTriangle(v4, v3, v5, diffuseGreen);
+	addTriangle(v2, v3, v4, diffuseGreen);
+	addTriangle(v4, v3, v5, diffuseGreen);
 	// Wall 3
-	scene->addTriangle(v4, v5, v6, diffuseBlue);
-	scene->addTriangle(v6, v5, v7, diffuseBlue);
+	addTriangle(v4, v5, v6, diffuseBlue);
+	addTriangle(v6, v5, v7, diffuseBlue);
 	// Wall 4
-	scene->addTriangle(v6, v7, v8, diffuseGreen);
-	scene->addTriangle(v8, v7, v9, diffuseGreen);
+	addTriangle(v6, v7, v8, diffuseGreen);
+	addTriangle(v8, v7, v9, diffuseGreen);
 	// Wall 5
-	scene->addTriangle(v8, v9, v10, diffuseBlue);
-	scene->addTriangle(v10, v9, v11, diffuseBlue);
+	addTriangle(v8, v9, v10, diffuseBlue);
+	addTriangle(v10, v9, v11, diffuseBlue);
 	// Wall 7
-	scene->addTriangle(v0, v10, v11, diffuseGreen);
-	scene->addTriangle(v0, v11, v1, diffuseGreen);
+	addTriangle(v0, v10, v11, diffuseGreen);
+	addTriangle(v0, v11, v1, diffuseGreen);
 }
 
-void Scene::addCornellWalls(std::shared_ptr<Scene> scene) {
+void Scene::addCornellWalls() {
 	// Material for scene room
 	std::shared_ptr<LambertianMaterial> diffuseWhite	= std::make_shared<LambertianMaterial>(glm::vec3(1.0f));
 	std::shared_ptr<LambertianMaterial> diffuseBlue		= std::make_shared<LambertianMaterial>(glm::vec3(0.0f, 1.0f, 0.0f));
@@ -84,15 +84,15 @@ void Scene::addCornellWalls(std::shared_ptr<Scene> scene) {
 	glm::vec3 v6 = glm::vec3(1.5f, 1.0f, 4.0f);
 	glm::vec3 v7 = glm::vec3(-1.5f, 1.0f, 4.0f);
 
-	scene->addPlane(v0, v1, v2, v3, diffuseRed);	// Back wall
-	scene->addPlane(v4, v7, v6, v5, diffuseWhite);	// Front wall
-	scene->addPlane(v0, v3, v7, v4, diffuseBlue);	// Left wall
-	scene->addPlane(v1, v5, v6, v2, diffuseGreen);	// Right wall
-	scene->addPlane(v2, v6, v7, v3, diffuseWhite);	// Roof
-	scene->addPlane(v0, v4, v5, v1, diffuseWhite);	// Floor
+	addPlane(v0, v1, v2, v3, diffuseRed);	// Back wall
+	addPlane(v4, v7, v6, v5, diffuseWhite);	// Front wall
+	addPlane(v0, v3, v7, v4, diffuseBlue);	// Left wall
+	addPlane(v1, v5, v6, v2, diffuseGreen);	// Right wall
+	addPlane(v2, v6, v7, v3, diffuseWhite);	// Roof
+	addPlane(v0, v4, v5, v1, diffuseWhite);	// Floor
 }
 
-void Scene::addTriangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, std::shared_ptr<Material> material, bool isEmissive) {
+void Scene::addTriangle(const glm::vec3 v0, const glm::vec3 v1, const glm::vec3 v2, std::shared_ptr<Material> material, bool isEmissive) {
 	std::shared_ptr<Surface::Triangle> triangle = std::make_shared<Surface::Triangle>(v0, v1, v2, material);
 	m_sceneObjects.push_back(triangle);
 	if (isEmissive) {
@@ -100,7 +100,7 @@ void Scene::addTriangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, std::shared_pt
 	}
 }
 
-void Scene::addPlane(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, std::shared_ptr<Material> material, bool isEmissive) {
+void Scene::addPlane(const glm::vec3 v0, const glm::vec3 v1, const glm::vec3 v2, const glm::vec3 v3, std::shared_ptr<Material> material, bool isEmissive) {
 	// Create two triangles
 	std::shared_ptr<Surface::Triangle> t1 = std::make_shared<Surface::Triangle>(v0, v1, v2, material);
 	std::shared_ptr<Surface::Triangle> t2 = std::make_shared<Surface::Triangle>(v2, v3, v0, material);
@@ -111,14 +111,35 @@ void Scene::addPlane(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, std
 
 	if (isEmissive) {
 		m_lightIndices.push_back(m_sceneObjects.size() - 1);
+		m_lightIndices.push_back(m_sceneObjects.size() - 2);
 	}
 }
 
-void Scene::addBox() {
+void Scene::addBox(const glm::vec3 origin, const glm::vec3 dimension, std::shared_ptr<Material> material, bool isEmissive) {
+	float w = dimension.x / 2.0f;
+	float h = dimension.y / 2.0f;
+	float d = dimension.z / 2.0f;
 
+	// Box vertices
+	glm::vec3 v0 = glm::vec3(-w, -h, -d) + origin;
+	glm::vec3 v1 = glm::vec3(w, -h, -d) + origin;
+	glm::vec3 v2 = glm::vec3(w, h, -d) + origin;
+	glm::vec3 v3 = glm::vec3(-w, h, -d) + origin;
+	glm::vec3 v4 = glm::vec3(-w, -h, d) + origin;
+	glm::vec3 v5 = glm::vec3(w, -h, d) + origin;
+	glm::vec3 v6 = glm::vec3(w, h, d) + origin;
+	glm::vec3 v7 = glm::vec3(-w, h, d) + origin;
+
+	// Add box sides
+	addPlane(v3, v2, v1, v0, material, isEmissive);	// Back wall
+	addPlane(v4, v5, v6, v7, material, isEmissive);	// Front wall
+	addPlane(v0, v4, v7, v3, material, isEmissive);	// Left wall
+	addPlane(v1, v2, v6, v5, material, isEmissive);	// Right wall
+	addPlane(v2, v3, v7, v6, material, isEmissive);	// Roof
+	addPlane(v0, v1, v5, v4, material, isEmissive);	// Floor
 }
 
-void Scene::addSphere(float radius, glm::vec3 origin, std::shared_ptr<Material> material, bool isEmissive) {
+void Scene::addSphere(const float radius, const glm::vec3 origin, std::shared_ptr<Material> material, bool isEmissive) {
 	std::shared_ptr<Surface::Sphere> sphere = std::make_shared<Surface::Sphere>(radius, origin, material);
 	m_sceneObjects.push_back(sphere);
 	if (isEmissive) {
@@ -130,24 +151,35 @@ std::shared_ptr<Scene> Scene::generateScene() {
 	std::shared_ptr<Scene> scene = std::make_shared<Scene>();
 
 	// Add scene walls
-	//scene->addHexagonWalls(scene);
-	scene->addCornellWalls(scene);
+	//scene->addHexagonWalls();
+	scene->addCornellWalls();
+
+	std::shared_ptr<LambertianMaterial> diffuseCyan = std::make_shared<LambertianMaterial>(glm::vec3(0.0f, 1.0f, 1.0f));
+	//scene->addBox(glm::vec3(-0.4f, -0.5f, 0.0f), glm::vec3(0.5f, 0.5f, 0.5f), diffuseCyan);
+	scene->addBox(glm::vec3(-0.4f, -0.5f, 0.7f), glm::vec3(0.5f, 0.5f, 0.5f), diffuseCyan);
 
 	std::shared_ptr<TransparentMaterial> glas = std::make_shared<TransparentMaterial>(1.5f);
 	std::shared_ptr<PerfectReflectorMaterial> mirror = std::make_shared<PerfectReflectorMaterial>();
 	//std::shared_ptr<LambertianMaterial> diffuseCyan = std::make_shared<LambertianMaterial>(glm::vec3(0.0f, 1.0f, 1.0f));
 	//std::shared_ptr<OrenNayarMaterial> onCyan = std::make_shared<OrenNayarMaterial>(glm::vec3(0.0f, 1.0f, 1.0f), 5.0f);
-	scene->addSphere(0.3f, glm::vec3(0.4f, -0.5f, 0.0f), glas);
+	//scene->addSphere(0.3f, glm::vec3(0.4f, -0.5f, 0.0f), glas);
+	scene->addSphere(0.3f, glm::vec3(0.4f, -0.5f, 0.7f), glas);
 
 	// Add light source
 	std::shared_ptr<EmissiveMaterial> emissiveWhite = std::make_shared<EmissiveMaterial>(glm::vec3(1.0f), 30.0f);
 	//glm::vec3 lv0 = glm::vec3(5.0f, -2.0f, -4.99f);
 	//glm::vec3 lv1 = glm::vec3(7.0f, 0.0f, -4.99f);
 	//glm::vec3 lv2 = glm::vec3(5.0f, 2.0f, -4.99f);
-	glm::vec3 lv0 = glm::vec3(-0.35f, 0.99f, 0.35f);
-	glm::vec3 lv1 = glm::vec3(-0.35f, 0.99f, -0.35f);
-	glm::vec3 lv2 = glm::vec3(0.35f, 0.99f, -0.35f);
+
+	//glm::vec3 lv0 = glm::vec3(-0.35f, 0.99f, 0.35f);
+	//glm::vec3 lv1 = glm::vec3(-0.35f, 0.99f, -0.35f);
+	//glm::vec3 lv2 = glm::vec3(0.35f, 0.99f, -0.35f);
 	//glm::vec3 lv3 = glm::vec3(0.35f, 0.99f, 0.35f);
+
+	glm::vec3 lv0 = glm::vec3(-0.3f, 0.99f, 1.2f);
+	glm::vec3 lv1 = glm::vec3(-0.3f, 0.99f, 0.6f);
+	glm::vec3 lv2 = glm::vec3(0.3f, 0.99f, 0.6f);
+	//glm::vec3 lv3 = glm::vec3(0.3f, 0.99f, 0.55f);
 	scene->addTriangle(lv0, lv1, lv2, emissiveWhite, true);
 
 	return scene;

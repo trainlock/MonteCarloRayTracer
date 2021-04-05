@@ -29,12 +29,12 @@ private:
 	std::vector<int> m_lightIndices;
 
 	// Add objects to scene
-	void addHexagonWalls(std::shared_ptr<Scene> scene);
-	void addCornellWalls(std::shared_ptr<Scene> scene);
-	void addTriangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, std::shared_ptr<Material> material, bool isEmissive = false);
-	void addPlane(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, std::shared_ptr<Material> material, bool isEmissive = false);
-	void addBox();
-	void addSphere(float radius, glm::vec3 origin, std::shared_ptr<Material> material, bool isEmissive = false);
+	void addHexagonWalls();
+	void addCornellWalls();
+	void addTriangle(const glm::vec3 v0, const glm::vec3 v1, const glm::vec3 v2, std::shared_ptr<Material> material, bool isEmissive = false);
+	void addPlane(const glm::vec3 v0, const glm::vec3 v1, const glm::vec3 v2, const glm::vec3 v3, std::shared_ptr<Material> material, bool isEmissive = false);
+	void addBox(const glm::vec3 origin, const glm::vec3 dimension, std::shared_ptr<Material> material, bool isEmissive = false);
+	void addSphere(const float radius, const glm::vec3 origin, std::shared_ptr<Material> material, bool isEmissive = false);
 
 	// Trace rays
 	glm::vec3 traceRay(std::shared_ptr<Ray> ray, int depth = 0);
