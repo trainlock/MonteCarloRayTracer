@@ -53,13 +53,28 @@ namespace Surface {
 			m_vertices,
 			m_uvs,
 			m_normals);
-
-		std::cout << "Building octtree for mesh" << std::endl;
+		/*
+		std::cout << "Nr vertices = " << m_vertices.size() - 1 << std::endl;
+		int triangleNr = 1;
+		glm::vec3 v0, v1, v2;
+		for (int i = 0; i < m_vertices.size(); i = i + 3) {
+			v0 = m_vertices[m_indices[i + 0]];
+			v1 = m_vertices[m_indices[i + 1]];
+			v2 = m_vertices[m_indices[i + 2]];
+			std::cout << i << ": Triangle nr " << triangleNr << std::endl;
+			std::cout << "v0 = (" << v0.x << ", " << v0.y << ", " << v0.z << ")" << std::endl;
+			std::cout << "v1 = (" << v1.x << ", " << v1.y << ", " << v1.z << ")" << std::endl;
+			std::cout << "v2 = (" << v2.x << ", " << v2.y << ", " << v2.z << ")" << std::endl;
+			triangleNr++;
+		}
+		*/
+		std::cout << "Building octree for mesh" << std::endl;
 		m_otAABB = std::make_shared<OctreeAABB>(std::make_shared<Surface::Mesh>(*this));
-		std::cout << "Octtree has been built" << std::endl;
+		std::cout << "Octree has been built" << std::endl;
 	}
 
 	bool Mesh::intersect(std::shared_ptr<Ray> ray) const {
+		//std::cout << "Testing for intersection with Mesh" << std::endl;
 		return m_otAABB->intersect(ray);
 	}
 

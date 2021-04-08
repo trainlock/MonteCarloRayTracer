@@ -7,8 +7,8 @@
 #include <string>
 #include <cmath>
 
-#include "Scene.h"
-#include "Camera.h"
+#include "include/Scene.h"
+#include "include/Camera.h"
 
 int main() {
 	// Timer 
@@ -17,8 +17,8 @@ int main() {
 	std::cout << "Starting the Ray tracer" << std::endl;
 
 	// Variables
-	static const int WIDTH = 400;
-	static const int HEIGHT = 400;
+	static const int WIDTH = 100;
+	static const int HEIGHT = 100;
 	//const int NR_PHOTON_EMISSION = 10;
 	const int NR_SUBSAMPLES = 2;
 

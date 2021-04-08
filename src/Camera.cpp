@@ -74,7 +74,7 @@ void Camera::generateImage() {
 	}
 
 	FILE* fp;
-	fopen_s(&fp, "output/test.ppm", "wb"); // b = binary mode
+	fopen_s(&fp, "data/output/test.ppm", "wb"); // b = binary mode
 	//fopen_s(&fp, path.c_str(), "wb"); // b = binary mode
 	std::cout << "Opened file" << std::endl;
 

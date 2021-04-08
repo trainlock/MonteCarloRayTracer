@@ -148,6 +148,14 @@ void Scene::addSphere(const float radius, const glm::vec3 origin, std::shared_pt
 	}
 }
 
+void Scene::addMesh(const glm::mat4 transform, const char* filePath, std::shared_ptr<Material> material, bool isEmissive) {
+	std::shared_ptr<Surface::Mesh> mesh = std::make_shared<Surface::Mesh>(transform, filePath, material);
+	m_sceneObjects.push_back(mesh);
+	if (isEmissive) {
+		m_lightIndices.push_back(m_sceneObjects.size() - 1);
+	}
+}
+
 std::shared_ptr<Scene> Scene::generateScene() {
 	std::shared_ptr<Scene> scene = std::make_shared<Scene>();
 
@@ -157,14 +165,26 @@ std::shared_ptr<Scene> Scene::generateScene() {
 
 	std::shared_ptr<LambertianMaterial> diffuseCyan = std::make_shared<LambertianMaterial>(glm::vec3(0.0f, 1.0f, 1.0f));
 	//scene->addBox(glm::vec3(-0.4f, -0.5f, 0.0f), glm::vec3(0.5f, 0.5f, 0.5f), diffuseCyan);
-	scene->addBox(glm::vec3(-0.4f, -0.5f, 0.7f), glm::vec3(0.5f, 0.5f, 0.5f), diffuseCyan);
+	//scene->addBox(glm::vec3(-0.4f, -0.5f, 0.7f), glm::vec3(0.5f, 0.5f, 0.5f), diffuseCyan);
 
 	std::shared_ptr<TransparentMaterial> glas = std::make_shared<TransparentMaterial>(1.5f);
 	std::shared_ptr<PerfectReflectorMaterial> mirror = std::make_shared<PerfectReflectorMaterial>();
-	//std::shared_ptr<LambertianMaterial> diffuseCyan = std::make_shared<LambertianMaterial>(glm::vec3(0.0f, 1.0f, 1.0f));
 	//std::shared_ptr<OrenNayarMaterial> onCyan = std::make_shared<OrenNayarMaterial>(glm::vec3(0.0f, 1.0f, 1.0f), 5.0f);
 	//scene->addSphere(0.3f, glm::vec3(0.4f, -0.5f, 0.0f), glas);
-	scene->addSphere(0.3f, glm::vec3(0.4f, -0.5f, 0.7f), glas);
+	scene->addSphere(0.3f, glm::vec3(0.4f, -0.5f, 0.3f), glas);
+
+	glm::mat4x4 boxTransform = glm::mat4x4(1.0f);
+	/*
+	glm::mat4x4 boxTransform = glm::mat4x4( // Identity matrix
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f, 
+		0.0f, 0.0f, 1.0f, 0.0f, 
+		0.0f, 0.0f, 0.0f, 1.0f);
+	*/
+	boxTransform = glm::translate(boxTransform, glm::vec3(-0.4, -0.5, 0.7));
+	//boxTransform = glm::rotate(boxTransform, glm::pi<float>() / 3, glm::vec3(1, 1, 1));
+	boxTransform = glm::scale(boxTransform, glm::vec3(0.2, 0.2, 0.2));
+	scene->addMesh(boxTransform, "data/meshes/cube.obj", diffuseCyan);
 
 	// Add light source
 	std::shared_ptr<EmissiveMaterial> emissiveWhite = std::make_shared<EmissiveMaterial>(glm::vec3(1.0f), 30.0f);
@@ -206,7 +226,7 @@ void Scene::render(std::shared_ptr<Camera> camera, const int NR_SUBSAMPLES) {
 
 	// Loop over all pixels
 	for (int x = 0; x < width; ++x) {
-		#pragma omp parallel for
+		//#pragma omp parallel for
 		for (int y = 0; y < height; ++y) {
 			glm::vec3 pixelColour = glm::vec3(0.0f);
 			glm::vec3 totalColour = glm::vec3(0.0f);
