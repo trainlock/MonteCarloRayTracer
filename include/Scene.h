@@ -1,6 +1,7 @@
 #pragma once
 
-#define _USE_MATH_DEFINES // for C++
+#ifndef SCENE_H
+#define SCENE_H
 
 // Includes
 #include <vector>
@@ -10,9 +11,11 @@
 #include <iomanip>
 #include <omp.h>
 #include <chrono> // Time
-#include <cmath>
+
+#include "../external/kdtree++/kdtree.hpp"
 
 #include "../include/SceneObject.h"
+#include "../include/Photon.h"
 #include "../include/Camera.h"
 
 class Scene {
@@ -20,13 +23,15 @@ public:
 	Scene();
 	~Scene();
 
-	//void generatePhotonMap(const int NR_PHOTONS);
 	static std::shared_ptr<Scene> generateScene();
+	void generatePhotonMap(const int NR_PHOTONS);
 	void render(std::shared_ptr<Camera> camera, const int NR_SUBSAMPLES);
 
 private:
-	std::vector<std::shared_ptr<Surface::Base>> m_sceneObjects;
+	const static int MAX_DEPTH = 2;
 	std::vector<int> m_lightIndices;
+	std::vector<std::shared_ptr<Surface::Base>> m_sceneObjects;
+	KDTree::KDTree<3, KDTreeNode> m_photonMap;
 
 	// Add objects to scene
 	void addHexagonWalls();
@@ -37,11 +42,18 @@ private:
 	void addSphere(const float radius, const glm::vec3 origin, std::shared_ptr<Material> material, bool isEmissive = false);
 	void addMesh(const glm::mat4 transform, const char* filePath, std::shared_ptr<Material> material, bool isEmissive = false);
 
+	// Construction of photon map
+	std::shared_ptr<Ray> castLightRay(const int pickedLight = 0);
+	glm::vec3 tracePhotonRay(std::shared_ptr<Ray> ray, glm::vec3 photonRadiance = glm::vec3(0.0f), int depth = 0);
+	glm::vec3 traceRefractedPhotonRay(std::shared_ptr<Ray> ray, glm::vec3 photonRadiance = glm::vec3(0.0f), int depth = 0);
+	void addPhotonToMap(std::shared_ptr<Ray> ray, glm::vec3 photonRadiance, int depth);
+
 	// Trace rays
 	glm::vec3 traceRay(std::shared_ptr<Ray> ray, int depth = 0);
-	glm::vec3 traceDiffuseRay(std::shared_ptr<Ray> ray);	// Direct light
+	glm::vec3 traceRefractedRay(std::shared_ptr<Ray> ray, int depth); // Light through transparent objects
+	glm::vec3 traceDiffuseRay(std::shared_ptr<Ray> ray); // Direct light
 	glm::vec3 traceShadowRay(std::shared_ptr<Ray> ray, std::shared_ptr<Ray> shadowRay);	// Local illumination, diffuse
-	glm::vec3 traceRefractedRay(std::shared_ptr<Ray> ray, int depth);	// Light through transparent objects
+	glm::vec3 traceCausticsRay(std::shared_ptr<Ray> ray);
 
 	// Helper functions
 	bool findRayIntersection(std::shared_ptr<Ray> ray);
@@ -51,3 +63,5 @@ private:
 	std::mt19937* gen;
 	std::uniform_real_distribution<float>* dis;
 };
+
+#endif // SCENE_H

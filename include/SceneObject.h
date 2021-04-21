@@ -1,9 +1,9 @@
 #pragma once
 
-#define _USE_MATH_DEFINES // for C++
+#ifndef SCENE_OBJECT_H
+#define SCENE_OBJECT_H
 
 #include <memory>
-#include <cmath>
 #include <iostream>
 #include <vector>
 
@@ -24,6 +24,7 @@ namespace Surface {
 	public:
 		virtual bool intersect(std::shared_ptr<Ray> ray) const = 0;
 		virtual glm::vec3 getRandomPointOnSurface(float u, float v) const = 0;
+		virtual glm::vec3 getNormal(const int i = 0) const = 0;
 
 		// Getters
 		float getArea() const;
@@ -54,7 +55,7 @@ namespace Surface {
 		std::vector<unsigned int> getIndices() const;
 
 		glm::vec3 getVertex(const int i) const;
-		glm::vec3 getNormal(const int i) const;
+		glm::vec3 getNormal(const int i) const override;
 
 	private:
 		std::vector<glm::vec3> m_vertices; // positions
@@ -78,6 +79,7 @@ namespace Surface {
 		bool intersect(std::shared_ptr<Ray> ray) const override;
 		// Override: Get a random point on sphere surface
 		glm::vec3 getRandomPointOnSurface(float u, float v) const override;
+		glm::vec3 getNormal(const int i) const override;
 
 	private:
 		float m_radius;
@@ -102,6 +104,7 @@ namespace Surface {
 		bool intersect(std::shared_ptr<Ray> ray) const override;
 		// Override: Get a random point on triangle surface
 		glm::vec3 getRandomPointOnSurface(float u, float v) const override;
+		glm::vec3 getNormal(const int i) const override;
 
 	private:
 		// Vertices
@@ -117,3 +120,5 @@ namespace Surface {
 		void computeTriangleNormal();
 	};
 }
+
+#endif // SCENE_OBJECT_H

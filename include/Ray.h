@@ -1,7 +1,8 @@
 #pragma once
 
-#define _USE_MATH_DEFINES // for C++
-#include <cmath>
+#ifndef RAY_H
+#define RAY_H 
+
 #include <memory>
 #include <iostream>
 
@@ -59,6 +60,7 @@ public:
 	bool hitsDiffuseSurface() const;
 
 	glm::vec3 getBRDFValue(std::shared_ptr<Ray> reflectedRay) const;
+	glm::vec3 getBRDFValue(const glm::vec3 direction) const;
 
 	std::shared_ptr<Ray> createReflectedRay(const float rand1, const float rand2) const;
 	std::shared_ptr<Ray> createRefractedRay(std::shared_ptr<Ray> reflectedRay);
@@ -71,3 +73,5 @@ private:
 
 	void calculateRadianceDistribution(const float n1, const float n2);
 };
+
+#endif // RAY_H

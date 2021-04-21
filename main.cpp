@@ -17,16 +17,16 @@ int main() {
 	std::cout << "Starting the Ray tracer" << std::endl;
 
 	// Variables
-	static const int WIDTH = 100;
-	static const int HEIGHT = 100;
-	//const int NR_PHOTON_EMISSION = 10;
+	static const int WIDTH = 200;
+	static const int HEIGHT = 200;
+	const int NR_PHOTON_EMISSION = 5000;
 	const int NR_SUBSAMPLES = 2;
 
 	// Create scene
 	std::shared_ptr<Scene> scene = Scene::generateScene();
 
 	// Build photon map
-	//scene->buildPhotonMap(NR_PHOTON_EMISSION);
+	scene->generatePhotonMap(NR_PHOTON_EMISSION);
 
 	time(&startRenderTime);
 	double prerenderTime = difftime(startRenderTime, startTime);
@@ -57,7 +57,7 @@ int main() {
 		std::to_string(secondsElapsed)	+ "s";
 	std::cout << "Rendering time: " << renderingTime << std::endl;
 
-	/* Time for creation of photon map
+	///* Time for creation of photon map
 	int preRenderHoursElapsed	= int(prerenderTime) / (60 * 60);
 	int preRenderMinutesElapsed = (int(prerenderTime) % (60 * 60)) / 60;
 	int preRenderSecondsElapsed = int(prerenderTime) % 60;
@@ -67,7 +67,7 @@ int main() {
 		std::to_string(preRenderMinutesElapsed) + "m:" +
 		std::to_string(preRenderSecondsElapsed) + "s";
 	std::cout << "Prerendering time: " << prerenderingTime << std::endl;
-	*/
+	//*/
 
 	// Create image
 	camera->generateImage();

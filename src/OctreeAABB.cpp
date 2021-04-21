@@ -29,7 +29,7 @@ bool AABB::intersect(std::shared_ptr<Ray> ray) const {
 
 	// If tMin > tMax then ray doesn't intersect the AABB
 	if (tMin > tMax) return false;
-	std::cout << "AABB::intersect: Ray intersected bounding box" << std::endl;
+	//std::cout << "AABB::intersect: Ray intersected bounding box" << std::endl;
 	return true;
 }
 
@@ -46,7 +46,7 @@ bool AABB::intersectTriangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2) const {
 		{v2.x, v2.y, v2.z} };
 
 	bool hasIntersected = (triBoxOverlap(boxCenter, boxHalfSize, triVerts) == 1);
-	std::cout << "Is triangle intersected? " << (hasIntersected ? "Yes" : "No") << std::endl;
+	//std::cout << "Is triangle intersected? " << (hasIntersected ? "Yes" : "No") << std::endl;
 	return hasIntersected;
 }
 
@@ -65,11 +65,12 @@ OctreeNodeAABB::OctreeNodeAABB(
 	// If the node has no parent then this is the root
 	std::vector<unsigned int> indices = (!parent) ? mesh->getIndices() : parent->m_triangleIndicies;
 
-	std::cout << "Triangle indices.size() = " << (int)indices.size() << std::endl;
-	int triangleNr = 1;
-	glm::vec3 v0, v1, v2;
+	//std::cout << "Triangle indices.size() = " << (int)indices.size() << std::endl;
+	//int triangleNr = 1;
+	//glm::vec3 v0, v1, v2;
 	// Check which triangles are contained in the node
 	for (int i = 0; i < (int)indices.size(); i = i + 3) {
+		/*
 		v0 = mesh->getVertex(indices[i + 0]);
 		v1 = mesh->getVertex(indices[i + 1]);
 		v2 = mesh->getVertex(indices[i + 2]);
@@ -77,6 +78,7 @@ OctreeNodeAABB::OctreeNodeAABB(
 		std::cout << "v0 = (" << v0.x << ", " << v0.y << ", " << v0.z << ")" << std::endl;
 		std::cout << "v1 = (" << v1.x << ", " << v1.y << ", " << v1.z << ")" << std::endl;
 		std::cout << "v2 = (" << v2.x << ", " << v2.y << ", " << v2.z << ")" << std::endl;
+		*/
 		if (m_aabb.intersectTriangle(
 			mesh->getVertex(indices[i + 0]),
 			mesh->getVertex(indices[i + 1]),
@@ -86,16 +88,16 @@ OctreeNodeAABB::OctreeNodeAABB(
 			m_triangleIndicies.push_back(indices[i + 1]);
 			m_triangleIndicies.push_back(indices[i + 2]);
 		}
-		triangleNr++;
+		//triangleNr++;
 	}
 
-	std::cout << "Depth = " << depth << ", triangleIndices.size() = " << (int)m_triangleIndicies.size() << std::endl;
+	//std::cout << "Depth = " << depth << ", triangleIndices.size() = " << (int)m_triangleIndicies.size() << std::endl;
 	if (depth == 0 || m_triangleIndicies.size() <= 3 * 16) {
 		// Base case
 		for (int i = 0; i < 8; ++i) {
 			m_children[i] = nullptr;
 		}
-		std::cout << "OctreeNodeAABB::constructor: Base case" << std::endl;
+		//std::cout << "OctreeNodeAABB::constructor: Base case" << std::endl;
 	}
 	else {
 		// Recursion to create all 8 child nodes
@@ -116,7 +118,7 @@ OctreeNodeAABB::OctreeNodeAABB(
 				std::make_shared<OctreeNodeAABB>(*this), depth - 1, mesh,
 				childAABBMin, childAABBMax);
 		}
-		std::cout << "OctreeNodeAABB::constructor: Created child nodes to the octree node" << std::endl;
+		//std::cout << "OctreeNodeAABB::constructor: Created child nodes to the octree node" << std::endl;
 	}
 }
 
@@ -208,7 +210,7 @@ bool OctreeNodeAABB::intersect(std::shared_ptr<Ray> ray) const {
 	}
 	else {
 		// Check intersection with child nodes
-		std::cout << "OctreeNodeAABB::intersect: Not a leaf node, checking child nodes" << std::endl;
+		//std::cout << "OctreeNodeAABB::intersect: Not a leaf node, checking child nodes" << std::endl;
 		bool hasIntersected = false;
 		for (int i = 0; i < 8; ++i) {
 			// Check if ray intersects the bounding box of child node

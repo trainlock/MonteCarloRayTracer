@@ -16,6 +16,10 @@ float Material::getRefractionIndex() const {
 	return m_refractionIndex;
 }
 
+glm::vec3 Material::getColour() const {
+	return m_rho;
+}
+
 /**************** Lambertian ****************/
 LambertianMaterial::LambertianMaterial(const glm::vec3 reflectionCoefficient)
 	: Material(reflectionCoefficient) {}

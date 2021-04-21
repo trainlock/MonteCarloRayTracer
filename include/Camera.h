@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef CAMERA_H
+#define CAMERA_H
+
 #include <iostream>
 #include <iomanip>
 #include <vector>
@@ -63,3 +66,5 @@ private:
 	void createPPMImage(const std::string path);
 	//void createTGAImage(const std::string path);
 };
+
+#endif // CAMERA_H

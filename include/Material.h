@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef MATERIAL_H
+#define MATERIAL_H
+
 #include "../external/glm/glm/glm.hpp"
 #include "../external/glm/glm/gtc/constants.hpp"
 
@@ -17,14 +20,15 @@ public:
 	virtual int getTypeOfMaterial() const = 0;
 
 	float getRefractionIndex() const;
+	glm::vec3 getColour() const;
 
 protected:
 	Material();
 	explicit Material(float refractionIndex);
 	explicit Material(glm::vec3 reflectionCoefficient);
 
-	glm::vec3 m_rho;
-	glm::vec3 m_rhoOverPi; // Albedo
+	glm::vec3 m_rho;		// Colour (basically)
+	glm::vec3 m_rhoOverPi;	// Albedo
 	float m_refractionIndex;
 };
 
@@ -88,3 +92,5 @@ public:
 private:
 	float m_emissivity;
 };
+
+#endif // MATERIAL_H

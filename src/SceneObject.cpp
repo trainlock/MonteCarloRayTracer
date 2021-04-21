@@ -186,6 +186,11 @@ namespace Surface {
 		return m_origin + randomDirection * m_radius;
 	}
 
+	// TODO: Implement this function
+	glm::vec3 Sphere::getNormal(const int i) const {
+		return glm::vec3(0.0f);
+	}
+
 	void Sphere::computeArea() {
 		m_surfaceArea = 4.0f * glm::pi<float>() * m_radius * m_radius;
 	}
@@ -269,6 +274,10 @@ namespace Surface {
 		return (1.0f - randU - randV) * m_v0 + randU * m_v1 + randV * m_v2;
 		//return (1.0f - u - v) * m_v0 + u * m_v1 + v * m_v2;
 		//return (m_v0 + u * m_e1 + v * m_e2);
+	}
+
+	glm::vec3 Triangle::getNormal(const int i) const {
+		return m_normal;
 	}
 
 	void Triangle::computeArea() {

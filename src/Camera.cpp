@@ -64,6 +64,7 @@ void Camera::setPixelValues(const int x, const int y, const glm::vec3 pixelValue
 }
 
 void Camera::generateImage() {
+	std::cout << "------- Generating image -------" << std::endl;
 	// Create .ppm image from values in m_pixels
 	std::cout << "Writing to PPM..." << std::endl;
 

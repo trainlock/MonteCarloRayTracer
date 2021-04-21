@@ -57,13 +57,44 @@ bool Ray::hitsTransparentSurface() const {
 }
 
 bool Ray::hitsDiffuseSurface() const {
-	return !(std::dynamic_pointer_cast<EmissiveMaterial>(m_intersection->m_material));
+	// Diffuse surfaces are Lambertian and Oren-Nayar surfaces
+	return (std::dynamic_pointer_cast<LambertianMaterial>(m_intersection->m_material) ||
+			std::dynamic_pointer_cast<OrenNayarMaterial>(m_intersection->m_material)) ? true : false;
+	//return !(std::dynamic_pointer_cast<EmissiveMaterial>(m_intersection->m_material));
 	//	|| std::dynamic_pointer_cast<PerfectReflectorMaterial>(m_intersection->m_material));
 }
 
 glm::vec3 Ray::getBRDFValue(std::shared_ptr<Ray> reflectedRay) const {
 	// wIn = incoming direction of ray, wOut = outgoing direction of ray
 	glm::vec3 outDirection = reflectedRay->getDirection();
+
+	/*
+	// Convert to local space
+	glm::mat4 worldToLocalMatrix = m_intersection->worldToLocalMatrix(m_direction);
+	glm::vec3 wInLocal = glm::vec3(worldToLocalMatrix * glm::vec4(m_direction.x, m_direction.y, m_direction.z, 1.0f));
+	glm::vec3 wOutLocal = glm::vec3(worldToLocalMatrix * glm::vec4(outDirection.x, outDirection.y, outDirection.z, 1.0f));
+
+	// Normalize directions
+	glm::vec3 inDirection = glm::normalize(m_direction);
+	outDirection = glm::normalize(outDirection);
+
+	// Azimuth
+	float wInAzimuth = glm::atan(inDirection.y, inDirection.x);
+	float wOutAzimuth = glm::atan(outDirection.y, outDirection.x);
+
+	// Inclination
+	float absIn = glm::sqrt((inDirection.x * inDirection.x + inDirection.y * inDirection.y) / inDirection.z);
+	float absOut = glm::sqrt((outDirection.x * outDirection.x + outDirection.y * outDirection.y) / outDirection.z);
+	float wInInclination = glm::atan(absIn);
+	float wOutInclination = glm::atan(absOut);
+
+	return m_intersection->m_material->getBRDF(wInInclination, wInAzimuth, wOutInclination, wOutAzimuth);
+	*/
+	return getBRDFValue(outDirection);
+}
+
+glm::vec3 Ray::getBRDFValue(const glm::vec3 direction) const {
+	glm::vec3 outDirection = direction;
 
 	// Convert to local space
 	glm::mat4 worldToLocalMatrix = m_intersection->worldToLocalMatrix(m_direction);
@@ -100,7 +131,7 @@ std::shared_ptr<Ray> Ray::createReflectedRay(const float rand1, const float rand
 		glm::vec3 tangent = m_direction - glm::dot(m_direction, m_intersection->m_normal) * m_intersection->m_normal;
 
 		float inclination = (float)glm::acos(glm::sqrt(rand1));
-		float azimuth = 2.0f * (float)M_PI * rand2;
+		float azimuth = 2.0f * glm::pi<float>() * rand2;
 
 		reflectedRayDirection = m_intersection->m_normal;
 		reflectedRayDirection = glm::normalize(glm::rotate(
@@ -154,7 +185,7 @@ std::shared_ptr<Ray> Ray::createRefractedRay(std::shared_ptr<Ray> reflectedRay) 
 		reflectedRay->setStartPt(reflectionOrigin);
 		reflectedRay->setDirection(reflectionDirection);
 
-		// No refracted ray is created for total reflection
+		// No refracted ray is created with total reflection
 		return nullptr;
 	}
 }
