@@ -387,11 +387,11 @@ glm::vec3 Scene::traceRay(std::shared_ptr<Ray> ray, int depth) {
 
 	// Compute direct lightning
 	if (ray->hitsDiffuseSurface()) {
-		//directLight = traceDiffuseRay(ray); // Direct lightning
-		directLight += traceCausticsRay(ray);; // Caustics lightning
+		directLight = traceDiffuseRay(ray); // Direct lightning
+		caustics = traceCausticsRay(ray);; // Caustics lightning
 	}
 
-	return glm::clamp(directLight + indirectLight, 0.0f, 1.0f);
+	return glm::clamp(directLight + indirectLight + caustics, 0.0f, 1.0f);
 }
 
 glm::vec3 Scene::traceRefractedRay(std::shared_ptr<Ray> ray, int depth) {
