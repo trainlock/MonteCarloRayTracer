@@ -565,6 +565,7 @@ glm::vec3 Scene::traceCausticsRay(std::shared_ptr<Ray> ray) {
 	return glm::clamp((nrClosePhotons > 0) ? radiance / (float)nrClosePhotons : glm::vec3(0.0f), 0.0f, 1.0f);
 }
 
+// TODO: Should probably change photonRadiance to a reference
 glm::vec3 Scene::tracePhotonRay(std::shared_ptr<Ray> ray, glm::vec3 photonRadiance, int depth) {
 	// Check if ray intersects an objects surface
 	if (!findRayIntersection(ray)) return photonRadiance;
@@ -575,7 +576,13 @@ glm::vec3 Scene::tracePhotonRay(std::shared_ptr<Ray> ray, glm::vec3 photonRadian
 	// Create reflected ray
 	std::shared_ptr<Ray> reflectedRay = ray->createReflectedRay((*dis)(*gen), (*dis)(*gen));
 	glm::vec3 brdf = ray->getBRDFValue(reflectedRay); // Might not need this one
-	
+
+	// Should I do this? Is the shadows to dark? (probably)
+	if (ray->hitsDiffuseSurface()) {
+		// TODO: Is direct shadow photons missing?
+		photonRadiance = tracePhotonShadowRay(ray, photonRadiance);
+	}
+
 	// Could change this to be only recursive for transparent and reflective surfaces
 	if (ray->hitsEmissiveSurface() && !terminateRay) {
 		photonRadiance += brdf;
@@ -593,6 +600,45 @@ glm::vec3 Scene::tracePhotonRay(std::shared_ptr<Ray> ray, glm::vec3 photonRadian
 		// Add to photon map
 		addPhotonToMap(ray, photonRadiance, depth);
 	}
+	return photonRadiance;
+}
+
+glm::vec3 Scene::tracePhotonShadowRay(std::shared_ptr<Ray> ray, glm::vec3 photonRadiance) {
+	glm::vec3 totalLightContribution = glm::vec3(0.0f);
+	glm::vec3 lightContribution, ptOnEmissive;
+
+	for (int lightIndex : m_lightIndices) {
+		lightContribution = glm::vec3(0.0f);
+		std::shared_ptr<Surface::Base> emissive = m_sceneObjects[lightIndex];
+
+		// Create a shadow ray from the ray intersection point towards the a random point on the light
+		ptOnEmissive = emissive->getRandomPointOnSurface((*dis)(*gen), (*dis)(*gen));
+		std::shared_ptr<Ray> shadowRay = ray->createShadowRay(ptOnEmissive);
+
+		glm::vec3 shadowRayDirection = glm::normalize(shadowRay->getDirection());
+		//ray = shadowRay;
+
+		if (!findRayIntersection(shadowRay) || !shadowRay->hitsEmissiveSurface() && !shadowRay->hitsTransparentSurface()) return glm::vec3(0.0f);
+		/*
+		float cosBeta = glm::dot(shadowRayDirection, ray->getIntersection()->m_normal);
+		if (cosBeta < 0.0f) return glm::vec3(0.0f);
+
+		// Outgoing angle
+		float cosAlpha = glm::dot(-1.0f * shadowRayDirection, shadowRay->getIntersection()->m_normal);
+		if (cosAlpha < 0.0f) return glm::vec3(0.0f);
+
+		float lengthShadowRay = glm::length(shadowRayDirection);
+		float lengthSquared = lengthShadowRay * lengthShadowRay;
+
+		// Get brdf of surface
+		glm::vec3 brdf = ray->getBRDFValue(shadowRay);
+
+		// Return shadow ray contribution
+		lightContribution = (brdf * (cosAlpha * cosBeta) / lengthSquared); 
+		lightContribution *= (emissive->getRadiance() * emissive->getArea()) / (glm::pi<float>() * 2.0f);
+		*/
+	}
+	//return lightContribution;
 	return photonRadiance;
 }
 

@@ -19,7 +19,7 @@ int main() {
 	// Variables
 	static const int WIDTH = 200;
 	static const int HEIGHT = 200;
-	const int NR_PHOTON_EMISSION = 5000;
+	const int NR_PHOTON_EMISSION = 1000;
 	const int NR_SUBSAMPLES = 2;
 
 	// Create scene

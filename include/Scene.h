@@ -55,6 +55,7 @@ private:
 	// Construction of photon map
 	std::shared_ptr<Ray> castLightRay(const int pickedLight = 0);
 	glm::vec3 tracePhotonRay(std::shared_ptr<Ray> ray, glm::vec3 photonRadiance = glm::vec3(0.0f), int depth = 0);
+	glm::vec3 tracePhotonShadowRay(std::shared_ptr<Ray> ray, glm::vec3 photonRadiance = glm::vec3(0.0f));
 	glm::vec3 traceRefractedPhotonRay(std::shared_ptr<Ray> ray, glm::vec3 photonRadiance = glm::vec3(0.0f), int depth = 0);
 	void addPhotonToMap(std::shared_ptr<Ray> ray, glm::vec3 photonRadiance, int depth);
 
