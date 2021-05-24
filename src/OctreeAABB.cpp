@@ -43,7 +43,8 @@ bool AABB::intersectTriangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2) const {
 	float triVerts[3][3] = {
 		{v0.x, v0.y, v0.z},
 		{v1.x, v1.y, v1.z},
-		{v2.x, v2.y, v2.z} };
+		{v2.x, v2.y, v2.z} 
+	};
 
 	bool hasIntersected = (triBoxOverlap(boxCenter, boxHalfSize, triVerts) == 1);
 	//std::cout << "Is triangle intersected? " << (hasIntersected ? "Yes" : "No") << std::endl;
@@ -161,7 +162,7 @@ bool OctreeNodeAABB::intersect(std::shared_ptr<Ray> ray) const {
 
 			// If determinant is near zero, then the ray lies in plane of triangle
 			det = glm::dot(e1, P);
-			if (std::fabs(det) < EPSILON) {
+			if (std::fabs(det) < FLT_EPSILON) {
 				hasIntersected = false; 
 				//std::cout << "Determinat is near zero; Continue" << std::endl;
 				continue;
@@ -182,7 +183,7 @@ bool OctreeNodeAABB::intersect(std::shared_ptr<Ray> ray) const {
 			// Calculate the distance from ray to plane
 			t = glm::dot(Q, e2) * invDet;
 
-			if (t > EPSILON && t < tMin) {
+			if (t > FLT_EPSILON && t < tMin) {
 				//std::cout << "OctreeNodeAABB::intersect: Ray intersected node" << std::endl;
 				//std::cout << "t = " << t << std::endl;
 				tMin = t;

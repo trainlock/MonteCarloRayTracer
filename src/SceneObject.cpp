@@ -148,7 +148,7 @@ namespace Surface {
 			if (d0 < 0.0f) return false; // Both d0 and d1 are negative, meaning the point does not intersect
 		}
 
-		if (glm::abs(d0) < EPSILON) return false;
+		if (glm::abs(d0) < FLT_EPSILON) return false;
 
 		// An intersection exists
 		if (ray->isIntersectionCloser(d0)) {
@@ -201,7 +201,7 @@ namespace Surface {
 
 		float discr = b * b - 4.0f * a * c;
 		if (discr < 0.0f) return false;
-		else if (glm::abs(discr) < EPSILON) x0 = x1 = -0.5f * b / a;
+		else if (glm::abs(discr) < FLT_EPSILON) x0 = x1 = -0.5f * b / a;
 		else {
 			float q = (b > 0.0f) ? -0.5f * (b + sqrt(discr)) : -0.5f * (b - sqrt(discr));
 			x0 = q / a;
@@ -235,7 +235,7 @@ namespace Surface {
 
 		// If determinant is near zero, ray lies in plane of triangle
 		float det = glm::dot(P, m_e1);
-		if (std::fabs(det) < EPSILON) return false;
+		if (std::fabs(det) < FLT_EPSILON) return false;
 
 		// Calculate u and v
 		float invDet = 1.0f / det;
@@ -249,7 +249,7 @@ namespace Surface {
 		float t = glm::dot(Q, m_e2) * invDet;
 	
 		// Check if ray intersects the triangle and does not have a closer intersection
-		if (t > EPSILON && ray->isIntersectionCloser(t)) {
+		if (t > FLT_EPSILON && ray->isIntersectionCloser(t)) {
 			// Set up an intersection for the ray
 			glm::vec3 intersectionPt = ray->getStartPt() + t * ray->getDirection();
 			glm::vec3 normal = m_normal;

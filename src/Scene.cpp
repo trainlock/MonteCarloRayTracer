@@ -1,4 +1,5 @@
 #include "../include/Scene.h"
+#include "../include/Utility.h"
 
 Scene::Scene() {
 	std::random_device rd;
@@ -9,6 +10,22 @@ Scene::Scene() {
 Scene::~Scene() {
 	delete gen;
 	delete dis;
+}
+
+void Scene::setNrSubsamples(const int nrSubsamples) {
+	m_nrSubsamples = nrSubsamples;
+}
+
+void Scene::setNrPhotonEmission(const int nrPhotonEmission) {
+	m_nrPhotonEmission = nrPhotonEmission;
+}
+
+int Scene::getNrSubsamples() const {
+	return m_nrSubsamples;
+}
+
+int Scene::getNrPhotonEmission() const {
+	return m_nrPhotonEmission;
 }
 
 void Scene::addHexagonWalls() {
@@ -160,11 +177,13 @@ std::shared_ptr<Ray> Scene::castLightRay(const int pickedLight) {
 	// Shoot ray from random point on the picked light source
 	glm::vec3 randomPtOnSurface = m_sceneObjects[m_lightIndices[pickedLight]]->getRandomPointOnSurface((*dis)(*gen), (*dis)(*gen));
 	glm::vec3 surfaceNormal = m_sceneObjects[m_lightIndices[pickedLight]]->getNormal();
-	glm::vec3 rayOrigin = randomPtOnSurface + surfaceNormal * EPSILON;
+	glm::vec3 rayOrigin = randomPtOnSurface + surfaceNormal * FLT_EPSILON;
+	/*
 	float rand1 = (*dis)(*gen), rand2 = (*dis)(*gen);
 
 	// Uniform distribution over hemisphere
-	float inclination = glm::acos(1.0f - 2.0f * rand1);
+	//float inclination = glm::acos(1.0f - 2.0f * rand1);
+	float inclination = glm::acos(glm::sqrt(rand1));
 	float azimuth = 2.0f * glm::pi<float>() * rand2;
 
 	// Compute a random direction
@@ -179,8 +198,13 @@ std::shared_ptr<Ray> Scene::castLightRay(const int pickedLight) {
 		azimuth,
 		glm::vec3(1.0f, 0.0f, 0.0f)
 	));
+	*/
 
-	return std::make_shared<Ray>(rayOrigin, randomDirection);
+	// Checkout this function
+	glm::vec3 randomHemisphereDirection = Utility::CosineWeightedHemisphereSampleDirection(surfaceNormal);
+
+	//return std::make_shared<Ray>(rayOrigin, randomDirection);
+	return std::make_shared<Ray>(rayOrigin, randomHemisphereDirection);
 }
 
 std::shared_ptr<Scene> Scene::generateScene() {
@@ -210,10 +234,15 @@ std::shared_ptr<Scene> Scene::generateScene() {
 		0.0f, 0.0f, 0.0f, 1.0f);
 	*/
 	transform = glm::translate(transform, glm::vec3(-0.4, -0.5, 0.7));
-	//transform = glm::rotate(transform, glm::pi<float>() / 3, glm::vec3(1, 1, 1));
+	transform = glm::rotate(transform, glm::pi<float>() / 3, glm::vec3(1, 1, 1));
 	transform = glm::scale(transform, glm::vec3(0.2, 0.2, 0.2));
 	scene->addMesh(transform, "data/meshes/cube.obj", diffuseCyan);
-	//scene->addMesh(transform, "data/meshes/suzanne.obj", diffuseCyan); // Monkey ~8 000 vertices
+	/* Monkey
+	transform = glm::translate(transform, glm::vec3(0.0, -0.5, 0.7));
+	transform = glm::rotate(transform, 5.0f, glm::vec3(1, 0, 0)); // Angles in degrees
+	transform = glm::scale(transform, glm::vec3(0.5, 0.5, 0.5));
+	scene->addMesh(transform, "data/meshes/suzanne.obj", diffuseCyan); // Monkey ~8 000 vertices
+	*/
 	//scene->addMesh(transform, "data/meshes/bunny.obj", diffuseCyan); // Stanford bunny ~35 000 vertice
 
 	// Add light source
@@ -230,8 +259,10 @@ std::shared_ptr<Scene> Scene::generateScene() {
 	glm::vec3 lv0 = glm::vec3(-0.3f, 0.99f, 1.2f);
 	glm::vec3 lv1 = glm::vec3(-0.3f, 0.99f, 0.6f);
 	glm::vec3 lv2 = glm::vec3(0.3f, 0.99f, 0.6f);
+	glm::vec3 lv3 = glm::vec3(0.3f, 0.99f, 1.2f);
 	//glm::vec3 lv3 = glm::vec3(0.3f, 0.99f, 0.55f);
 	scene->addTriangle(lv0, lv1, lv2, emissiveWhite, true);
+	scene->addTriangle(lv0, lv2, lv3, emissiveWhite, true);
 
 	return scene;
 }
@@ -249,7 +280,7 @@ void Scene::generatePhotonMap(const int nrPhotons) {
 
 	int nrLights = (int)m_lightIndices.size();
 	glm::vec3 lColour;
-	float lArea, emissivity, maxEmissivity = 0.0f;
+	float lArea; 
 	// Calculate total flux from light sources
 	for (int i = 0; i < nrLights; ++i) {
 		// Should be colour or material (or radiance, not sure)
@@ -258,14 +289,14 @@ void Scene::generatePhotonMap(const int nrPhotons) {
 		lArea = m_sceneObjects[m_lightIndices[i]]->getArea();
 		totalFluxNormalised += ((lColour.r + lColour.g + lColour.b) / 3) * lArea; // Might not be needed
 		totalFlux += lColour * lArea;
-		emissivity = m_sceneObjects[m_lightIndices[i]]->getRadiance();
-		maxEmissivity = glm::max<float>(maxEmissivity, emissivity);
 	}
 
 	// Estimate photon map
 	for (int k = 0; k < 100; k++) {
 		// TODO: Add OpenMP (will need all variables declared inside then...)
+		//#pragma omp parallel for
 		for (int i = 0; i < nrPhotons; i++) {
+		//for (int i = 0; i < nrPhotons/100; i++) {
 			float rand = (*dis)(*gen);
 			float lightArea, interval, accumulatingChange = 0.0f;
 			int pickedLight = 0;
@@ -291,7 +322,7 @@ void Scene::generatePhotonMap(const int nrPhotons) {
 			// Ray origin is at the light source and direction is from the light into the scene
 			std::shared_ptr<Ray> ray = castLightRay(pickedLight);
 			glm::vec3 surfaceNormal = m_sceneObjects[m_lightIndices[pickedLight]]->getNormal();
-			glm::vec3 radiance = glm::dot(ray->getDirection(), surfaceNormal) * lightColour;
+			glm::vec3 radiance = glm::dot(ray->getDirection(), surfaceNormal) * m_sceneObjects[m_lightIndices[pickedLight]]->getMaterial()->getColour(); // lightColour;
 
 			tracePhotonRay(ray, radiance);
 		}
@@ -311,9 +342,12 @@ void Scene::generatePhotonMap(const int nrPhotons) {
 		counter++;
 	}
 	*/
+
+	// Optimize KD-tree
+	m_photonMap.optimize();
 }
 
-void Scene::render(std::shared_ptr<Camera> camera, const int NR_SUBSAMPLES) {
+void Scene::render(std::shared_ptr<Camera> camera) {
 	time_t currTime, startRenderTime;
 
 	float renderedPercent = 0.0f;
@@ -331,21 +365,41 @@ void Scene::render(std::shared_ptr<Camera> camera, const int NR_SUBSAMPLES) {
 	std::mt19937 genHalf(rd());
 	std::uniform_real_distribution<float> disHalf(-0.5, 0.5f);
 
+	std::cout << "Nr emissive objects = " << m_lightIndices.size() << std::endl;
+
 	// Loop over all pixels
 	for (int x = 0; x < width; ++x) {
-		//#pragma omp parallel for
+		#pragma omp parallel for
 		for (int y = 0; y < height; ++y) {
-			glm::vec3 pixelColour = glm::vec3(0.0f);
 			glm::vec3 totalColour = glm::vec3(0.0f);
-			for (int subsample = 0; subsample < NR_SUBSAMPLES; ++subsample) {
-				std::shared_ptr<Ray> ray = camera->castCameraRay(
-					x,						// Pixel x
-					(height - y - 1),		// Pixel y
-					disHalf(genHalf),		// Parameter x (>= -0.5, < 0.5), for subsampling
-					disHalf(genHalf));		// Parameter y (>= -0.5, < 0.5), for subsampling
-				pixelColour += traceRay(ray);
+			/* // NOT WORKING THE WAY IT SHOULD! This will cause it to create a magnitude of rays for each pixel
+			if (m_nrPhotonEmission) {
+				glm::vec3 pixelColour = glm::vec3(0.0f);
+				for (int subsample = 0; subsample < m_nrPhotonEmission; ++subsample) {
+					std::shared_ptr<Ray> ray = camera->castCameraRay(
+						x,						// Pixel x
+						(height - y - 1),		// Pixel y
+						disHalf(genHalf),		// Parameter x (>= -0.5, < 0.5), for subsampling
+						disHalf(genHalf));		// Parameter y (>= -0.5, < 0.5), for subsampling
+					pixelColour += traceRay(ray, CAUSTICS);
+				}
+				causticsColour += pixelColour / (float)m_nrPhotonEmission;
 			}
-			totalColour += pixelColour / (float)NR_SUBSAMPLES; 
+			*/
+			///*
+			if (m_nrSubsamples) {
+				glm::vec3 pixelColour = glm::vec3(0.0f);
+				for (int subsample = 0; subsample < m_nrSubsamples; ++subsample) {
+					std::shared_ptr<Ray> ray = camera->castCameraRay(
+						x,						// Pixel x
+						(height - y - 1),		// Pixel y
+						disHalf(genHalf),		// Parameter x (>= -0.5, < 0.5), for subsampling
+						disHalf(genHalf));		// Parameter y (>= -0.5, < 0.5), for subsampling
+					pixelColour += traceRay(ray, CAUSTICS);
+				}
+				totalColour += pixelColour / (float)m_nrSubsamples;
+			}
+			//*/
 			camera->setPixelValues(x, y, totalColour);
 		}
 		renderedPercent = (x + 1) * 100 / float(width);
@@ -363,12 +417,9 @@ void Scene::render(std::shared_ptr<Camera> camera, const int NR_SUBSAMPLES) {
 }
 
 // Path tracer that returns the colour of the hit surface
-glm::vec3 Scene::traceRay(std::shared_ptr<Ray> ray, int depth) {
+glm::vec3 Scene::traceRay(std::shared_ptr<Ray> ray, const int renderMode, int depth) {
 	// Check if ray intersects an objects surface
 	if (!findRayIntersection(ray)) return glm::vec3(0.0f);
-
-	// Russian roulette
-	bool terminateRay = russianRoulette(depth);
 
 	// Variables
 	glm::vec3 indirectLight = glm::vec3(0.0f);	// Diffuse light (local and global)
@@ -376,6 +427,29 @@ glm::vec3 Scene::traceRay(std::shared_ptr<Ray> ray, int depth) {
 	glm::vec3 caustics = glm::vec3(0.0f);		// Caustic light
 	glm::vec3 brdf = glm::vec3(0.0f);
 
+	if (renderMode == MONTE_CARLO) {
+		// Russian roulette
+		bool terminateRay = russianRoulette(depth);
+
+		// Create reflected ray
+		std::shared_ptr<Ray> reflectedRay = ray->createReflectedRay((*dis)(*gen), (*dis)(*gen));
+		brdf = ray->getBRDFValue(reflectedRay);
+
+		// Check if a light source is hit
+		if (ray->hitsEmissiveSurface()) indirectLight = brdf; // Should it stop here?? Just return brdf?
+		else if (ray->hitsTransparentSurface() && !terminateRay) indirectLight += traceRefractedRay(ray, depth);
+		else if (!ray->hitsDiffuseSurface() && !terminateRay) indirectLight += traceRay(reflectedRay, depth + 1) * brdf;
+
+		// Compute direct lightning
+		if (ray->hitsDiffuseSurface()) {
+			directLight = traceDiffuseRay(ray); // Direct lightning
+		}
+	}
+	if (renderMode == CAUSTICS && ray->hitsDiffuseSurface())
+	{
+		caustics = traceCausticsRay(ray);; // Caustics lightning
+	}
+	/*
 	// Create reflected ray
 	std::shared_ptr<Ray> reflectedRay = ray->createReflectedRay((*dis)(*gen), (*dis)(*gen));
 	brdf = ray->getBRDFValue(reflectedRay);
@@ -387,9 +461,10 @@ glm::vec3 Scene::traceRay(std::shared_ptr<Ray> ray, int depth) {
 
 	// Compute direct lightning
 	if (ray->hitsDiffuseSurface()) {
-		directLight = traceDiffuseRay(ray); // Direct lightning
-		caustics = traceCausticsRay(ray);; // Caustics lightning
+		if(renderMode == MONTE_CARLO) directLight = traceDiffuseRay(ray); // Direct lightning
+		if(renderMode == CAUSTICS) caustics = traceCausticsRay(ray);; // Caustics lightning
 	}
+	*/
 
 	return glm::clamp(directLight + indirectLight + caustics, 0.0f, 1.0f);
 }
@@ -459,8 +534,10 @@ glm::vec3 Scene::traceShadowRay(std::shared_ptr<Ray> ray, std::shared_ptr<Ray> s
 }
 
 glm::vec3 Scene::traceCausticsRay(std::shared_ptr<Ray> ray) {
+	// TODO: Check the normals (as they create a black edge/line)
+
 	KDTreeNode refNode; // Reference node
-	refNode.p.m_position = ray->getIntersection()->m_intersectionPt + ray->getIntersection()->m_normal * EPSILON;
+	refNode.p.m_position = ray->getIntersection()->m_intersectionPt + ray->getIntersection()->m_normal * FLT_EPSILON;
 
 	// Find closest photon to ray intersection point
 	std::vector<KDTreeNode> closestPhotons;
@@ -471,7 +548,7 @@ glm::vec3 Scene::traceCausticsRay(std::shared_ptr<Ray> ray) {
 	int nrClosePhotons = (int)closestPhotons.size();
 	for (int i = 0; i < nrClosePhotons; ++i) {
 		// Calculate brdf for current photon (using direction of photon and of ray)
-		brdf = ray->getBRDFValue(closestPhotons[i].p.m_direction);
+		brdf = ray->getBRDFValue(closestPhotons[i].p.m_direction); // No difference with negative....
 		distance = glm::length(closestPhotons[i].p.m_position - refNode.p.m_position);
 
 		// The area of the photon if its inclination angle
@@ -500,10 +577,14 @@ glm::vec3 Scene::tracePhotonRay(std::shared_ptr<Ray> ray, glm::vec3 photonRadian
 	glm::vec3 brdf = ray->getBRDFValue(reflectedRay); // Might not need this one
 	
 	// Could change this to be only recursive for transparent and reflective surfaces
-	if (ray->hitsTransparentSurface() && !terminateRay) {
+	if (ray->hitsEmissiveSurface() && !terminateRay) {
+		photonRadiance += brdf;
+	}
+	else if (ray->hitsTransparentSurface() && !terminateRay) {
 		photonRadiance += traceRefractedPhotonRay(ray, photonRadiance, depth);
  	}
-	else if (!ray->hitsEmissiveSurface() && !terminateRay) { // Should it be && or ||?? Probably &&
+	else if (!ray->hitsEmissiveSurface() && !terminateRay) { // Should it be && or ||?? Probably && 
+		// TODO: Test which should be used (&& or ||)
 		// Continue traversing
 		photonRadiance += tracePhotonRay(reflectedRay, photonRadiance, depth + 1) * brdf;
 	}
@@ -531,11 +612,14 @@ glm::vec3 Scene::traceRefractedPhotonRay(std::shared_ptr<Ray> ray, glm::vec3 pho
 }
 
 void Scene::addPhotonToMap(std::shared_ptr<Ray> ray, glm::vec3 photonRadiance, int depth) {
-	if (!ray->getIntersection()) return;
+	if (!ray->getIntersection()) {
+		std::cout << "Scene::assPhotonToMap: Ray has no intersection." << std::endl;
+		return;
+	}
 
 	// Photons are stored at intersection points
-	glm::vec3 photonOrigin = ray->getIntersection()->m_intersectionPt + ray->getIntersection()->m_normal * EPSILON;
-	glm::vec3 photonDirection = -ray->getDirection(); // Should it be negative or nor?
+	glm::vec3 photonOrigin = ray->getIntersection()->m_intersectionPt + ray->getIntersection()->m_normal * FLT_EPSILON;
+	glm::vec3 photonDirection = -ray->getDirection(); // Should it be negative or not?
 
 	// Create photon
 	Photon p;

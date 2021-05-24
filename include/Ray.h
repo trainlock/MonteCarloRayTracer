@@ -37,6 +37,9 @@ struct Intersection {
 };
 
 /**************** Ray ****************/
+/**
+* COMMENT DESCRIBING A CLASS
+**/
 class Ray {
 public:
 	// Constructor
@@ -45,6 +48,16 @@ public:
 	// Getters and setters
 	glm::vec3 getStartPt() const;
 	glm::vec3 getDirection() const;
+
+	/**
+	  *   \brief A foo method.
+	  *
+	  *   More complete description of foo.
+	  *
+	  *   \param i A foo parameter.
+	  *   \return An int
+	  *
+	  **/
 	std::shared_ptr<Intersection> getIntersection() const;
 	float getReflectionCoefficient() const;
 	void setStartPt(const glm::vec3 startPt);

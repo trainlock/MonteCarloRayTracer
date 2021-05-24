@@ -121,7 +121,7 @@ glm::vec3 Ray::getBRDFValue(const glm::vec3 direction) const {
 std::shared_ptr<Ray> Ray::createReflectedRay(const float rand1, const float rand2) const { // Indirect diffuse ray
 	if (!m_intersection) return nullptr;
 
-	glm::vec3 reflectedRayOrigin = m_intersection->m_intersectionPt + m_intersection->m_normal * EPSILON; // offset;
+	glm::vec3 reflectedRayOrigin = m_intersection->m_intersectionPt + m_intersection->m_normal * FLT_EPSILON; // offset;
 	glm::vec3 reflectedRayDirection = glm::vec3(0.0f);
 
 	if (hitsPerfectReflectorSurface()) { // || hitsTransparentSurface()) {
@@ -161,7 +161,7 @@ std::shared_ptr<Ray> Ray::createRefractedRay(std::shared_ptr<Ray> reflectedRay) 
 		std::swap(n1, n2);
 	}
 
-	glm::vec3 offset = normal * EPSILON;
+	glm::vec3 offset = normal * FLT_EPSILON;
 	glm::vec3 refractionDirection = glm::refract(m_direction, normal, (n1 / n2));
 	glm::vec3 reflectionDirection = glm::reflect(m_direction, m_intersection->m_normal);
 
@@ -192,7 +192,7 @@ std::shared_ptr<Ray> Ray::createRefractedRay(std::shared_ptr<Ray> reflectedRay) 
 
 std::shared_ptr<Ray> Ray::createShadowRay(const glm::vec3 ptOnLight) const { // Direct shadow ray
 	if (!m_intersection) return nullptr;
-	glm::vec3 shadowRayOrigin = m_intersection->m_intersectionPt + m_intersection->m_normal * EPSILON;
+	glm::vec3 shadowRayOrigin = m_intersection->m_intersectionPt + m_intersection->m_normal * FLT_EPSILON;
 	glm::vec3 shadowRayDirection = ptOnLight - shadowRayOrigin;
 	return std::make_shared<Ray>(shadowRayOrigin, shadowRayDirection);
 }

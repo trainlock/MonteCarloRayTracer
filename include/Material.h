@@ -6,7 +6,7 @@
 #include "../external/glm/glm/glm.hpp"
 #include "../external/glm/glm/gtc/constants.hpp"
 
-static const float EPSILON = 0.00001f;
+//static const float EPSILON = 0.00001f;
 
 // Abstract base class for various materials
 class Material {

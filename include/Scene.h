@@ -23,12 +23,22 @@ public:
 	Scene();
 	~Scene();
 
+	enum renderMode {
+		CAUSTICS, MONTE_CARLO,
+	};
+
+	void setNrSubsamples(const int nrSubsamples);
+	void setNrPhotonEmission(const int nrPhotonEmission);
+	int getNrSubsamples() const;
+	int getNrPhotonEmission() const;
+
 	static std::shared_ptr<Scene> generateScene();
 	void generatePhotonMap(const int NR_PHOTONS);
-	void render(std::shared_ptr<Camera> camera, const int NR_SUBSAMPLES);
+	void render(std::shared_ptr<Camera> camera);
 
 private:
 	const static int MAX_DEPTH = 2;
+	int m_nrSubsamples, m_nrPhotonEmission;
 	std::vector<int> m_lightIndices;
 	std::vector<std::shared_ptr<Surface::Base>> m_sceneObjects;
 	KDTree::KDTree<3, KDTreeNode> m_photonMap;
@@ -49,7 +59,7 @@ private:
 	void addPhotonToMap(std::shared_ptr<Ray> ray, glm::vec3 photonRadiance, int depth);
 
 	// Trace rays
-	glm::vec3 traceRay(std::shared_ptr<Ray> ray, int depth = 0);
+	glm::vec3 traceRay(std::shared_ptr<Ray> ray, const int renderMode, int depth = 0);
 	glm::vec3 traceRefractedRay(std::shared_ptr<Ray> ray, int depth); // Light through transparent objects
 	glm::vec3 traceDiffuseRay(std::shared_ptr<Ray> ray); // Direct light
 	glm::vec3 traceShadowRay(std::shared_ptr<Ray> ray, std::shared_ptr<Ray> shadowRay);	// Local illumination, diffuse

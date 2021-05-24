@@ -41,8 +41,12 @@ int main() {
 		WIDTH,							// Image pixel width,
 		HEIGHT);						// Image pixel height
 
+	// Set nr of rays used
+	scene->setNrPhotonEmission(NR_PHOTON_EMISSION);
+	scene->setNrSubsamples(NR_SUBSAMPLES);
+
 	// Render scene
-	scene->render(camera, NR_SUBSAMPLES);
+	scene->render(camera);
 
 	time(&currTime);
 	// Time for rendering final image
