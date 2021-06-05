@@ -39,6 +39,7 @@ public:
 private:
 	const static int MAX_DEPTH = 2;
 	int m_nrSubsamples, m_nrPhotonEmission;
+	int m_renderMode;
 	std::vector<int> m_lightIndices;
 	std::vector<std::shared_ptr<Surface::Base>> m_sceneObjects;
 	KDTree::KDTree<3, KDTreeNode> m_photonMap;
@@ -60,7 +61,7 @@ private:
 	void addPhotonToMap(std::shared_ptr<Ray> ray, glm::vec3 photonRadiance, int depth);
 
 	// Trace rays
-	glm::vec3 traceRay(std::shared_ptr<Ray> ray, const int renderMode, int depth = 0);
+	glm::vec3 traceRay(std::shared_ptr<Ray> ray, int depth = 0);
 	glm::vec3 traceRefractedRay(std::shared_ptr<Ray> ray, int depth); // Light through transparent objects
 	glm::vec3 traceDiffuseRay(std::shared_ptr<Ray> ray); // Direct light
 	glm::vec3 traceShadowRay(std::shared_ptr<Ray> ray, std::shared_ptr<Ray> shadowRay);	// Local illumination, diffuse
