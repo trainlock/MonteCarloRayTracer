@@ -328,21 +328,6 @@ void Scene::generatePhotonMap(const int nrPhotons) {
 			tracePhotonRay(ray, radiance);
 		}
 	}
-	// Check photon map
-	/*
-	int counter = 0;
-	glm::vec3 pos, flux;
-	std::cout << "------- Traversing photon map -------" << std::endl;
-	for (auto it = m_photonMap.begin(); it != m_photonMap.end(); ++it) {
-		pos = it->p.m_position;
-		flux = it->p.m_flux;
-
-		std::cout << counter << ": photon pos = (" << pos.x << ", " << pos.y << ", " << pos.y << "), ";
-		std::cout << "flux = (" << flux.r << ", " << flux.g << ", " << flux.b << ")" << std::endl;
-
-		counter++;
-	}
-	*/
 
 	// Optimize KD-tree
 	m_photonMap.optimize();
