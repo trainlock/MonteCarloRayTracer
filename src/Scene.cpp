@@ -111,9 +111,9 @@ void Scene::addCornellWalls() {
 
 void Scene::addTriangle(const glm::vec3 v0, const glm::vec3 v1, const glm::vec3 v2, std::shared_ptr<Material> material, bool isEmissive) {
 	std::shared_ptr<Surface::Triangle> triangle = std::make_shared<Surface::Triangle>(v0, v1, v2, material);
-	m_sceneObjects.push_back(triangle);
+	m_sceneObjects.emplace_back(triangle);
 	if (isEmissive) {
-		m_lightIndices.push_back(m_sceneObjects.size() - 1);
+		m_lightIndices.emplace_back(m_sceneObjects.size() - 1);
 	}
 }
 
@@ -123,12 +123,12 @@ void Scene::addPlane(const glm::vec3 v0, const glm::vec3 v1, const glm::vec3 v2,
 	std::shared_ptr<Surface::Triangle> t2 = std::make_shared<Surface::Triangle>(v2, v3, v0, material);
 
 	// Add to list of scene objects
-	m_sceneObjects.push_back(t1);
-	m_sceneObjects.push_back(t2);
+	m_sceneObjects.emplace_back(t1);
+	m_sceneObjects.emplace_back(t2);
 
 	if (isEmissive) {
-		m_lightIndices.push_back(m_sceneObjects.size() - 1);
-		m_lightIndices.push_back(m_sceneObjects.size() - 2);
+		m_lightIndices.emplace_back(m_sceneObjects.size() - 1);
+		m_lightIndices.emplace_back(m_sceneObjects.size() - 2);
 	}
 }
 
@@ -156,20 +156,20 @@ void Scene::addBox(const glm::vec3 origin, const glm::vec3 dimension, std::share
 	addPlane(v0, v1, v5, v4, material, isEmissive);	// Floor
 }
 
-// TODO: Change push_back to emplace_back
+// TODO: Change emplace_back to emplace_back
 void Scene::addSphere(const float radius, const glm::vec3 origin, std::shared_ptr<Material> material, bool isEmissive) {
 	std::shared_ptr<Surface::Sphere> sphere = std::make_shared<Surface::Sphere>(radius, origin, material);
-	m_sceneObjects.push_back(sphere);
+	m_sceneObjects.emplace_back(sphere);
 	if (isEmissive) {
-		m_lightIndices.push_back(m_sceneObjects.size() - 1);
+		m_lightIndices.emplace_back(m_sceneObjects.size() - 1);
 	}
 }
 
 void Scene::addMesh(const glm::mat4 transform, const char* filePath, std::shared_ptr<Material> material, bool isEmissive) {
 	std::shared_ptr<Surface::Mesh> mesh = std::make_shared<Surface::Mesh>(transform, filePath, material);
-	m_sceneObjects.push_back(mesh);
+	m_sceneObjects.emplace_back(mesh);
 	if (isEmissive) {
-		m_lightIndices.push_back(m_sceneObjects.size() - 1);
+		m_lightIndices.emplace_back(m_sceneObjects.size() - 1);
 	}
 }
 
@@ -178,6 +178,7 @@ std::shared_ptr<Ray> Scene::castLightRay(const int pickedLight) {
 	glm::vec3 randomPtOnSurface = m_sceneObjects[m_lightIndices[pickedLight]]->getRandomPointOnSurface((*dis)(*gen), (*dis)(*gen));
 	glm::vec3 surfaceNormal = m_sceneObjects[m_lightIndices[pickedLight]]->getNormal();
 	glm::vec3 rayOrigin = randomPtOnSurface + surfaceNormal * FLT_EPSILON;
+
 	/*
 	float rand1 = (*dis)(*gen), rand2 = (*dis)(*gen);
 
@@ -500,6 +501,7 @@ glm::vec3 Scene::traceShadowRay(std::shared_ptr<Ray> ray, std::shared_ptr<Ray> s
 	glm::vec3 brdf = ray->getBRDFValue(shadowRay);
 
 	// Return shadow ray contribution
+	// glm::vec3 radiance = glm::dot(ray->getDirection(), surfaceNormal) * brdf;
 	return (brdf * (cosAlpha * cosBeta) / lengthSquared);
 }
 
@@ -515,13 +517,14 @@ glm::vec3 Scene::traceCausticsRay(std::shared_ptr<Ray> ray) {
 	m_photonMap.find_within_range(refNode, PHOTON_RADIUS, std::back_insert_iterator<std::vector<KDTreeNode>>(closestPhotons));
 
 	glm::vec3 brdf, radiance = glm::vec3(0.0f);
-	float photonArea = 0.0f, projectedArea = 0.0f, distance = 0.0f;
+	float photonArea = 0.0f, projectedArea = 0.0f, distance = 0.0f, lenDistance = 0.0f;
 	int nrClosePhotons = (int)closestPhotons.size();
 	for (int i = 0; i < nrClosePhotons; ++i) {
 		KDTreeNode node = closestPhotons[i];
 
 		// Calculate brdf for current photon (using direction of photon and of ray)
 		distance = glm::length(node.p.m_position - refNode.p.m_position);
+		lenDistance = glm::length(distance);
 		brdf = ray->getBRDFValue(node.p.m_direction); // No difference with negative....
 
 		// The area of the photon if its inclination angle
