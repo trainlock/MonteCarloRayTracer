@@ -17,8 +17,8 @@ int main() {
 	std::cout << "Starting the Ray tracer" << std::endl;
 
 	// Variables
-	static const int WIDTH = 200;
-	static const int HEIGHT = 200;
+	static const int WIDTH = 400;
+	static const int HEIGHT = 400;
 	const int NR_PHOTON_EMISSION = 1000;
 	const int NR_SUBSAMPLES = 2;
 
@@ -26,7 +26,7 @@ int main() {
 	std::shared_ptr<Scene> scene = Scene::generateScene();
 
 	// Build photon map
-	scene->generatePhotonMap(NR_PHOTON_EMISSION);
+	//scene->generatePhotonMap(NR_PHOTON_EMISSION);
 
 	time(&startRenderTime);
 	double prerenderTime = difftime(startRenderTime, startTime);

@@ -193,7 +193,7 @@ std::shared_ptr<Ray> Ray::createRefractedRay(std::shared_ptr<Ray> reflectedRay) 
 std::shared_ptr<Ray> Ray::createShadowRay(const glm::vec3 ptOnLight) const { // Direct shadow ray
 	if (!m_intersection) return nullptr;
 	glm::vec3 shadowRayOrigin = m_intersection->m_intersectionPt + m_intersection->m_normal * FLT_EPSILON;
-	glm::vec3 shadowRayDirection = ptOnLight - shadowRayOrigin;
+	glm::vec3 shadowRayDirection = glm::normalize(ptOnLight - shadowRayOrigin);
 	return std::make_shared<Ray>(shadowRayOrigin, shadowRayDirection);
 }
 

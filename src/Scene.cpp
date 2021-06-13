@@ -224,7 +224,9 @@ std::shared_ptr<Scene> Scene::generateScene() {
 	std::shared_ptr<PerfectReflectorMaterial> mirror = std::make_shared<PerfectReflectorMaterial>();
 	//std::shared_ptr<OrenNayarMaterial> onCyan = std::make_shared<OrenNayarMaterial>(glm::vec3(0.0f, 1.0f, 1.0f), 5.0f);
 	//scene->addSphere(0.3f, glm::vec3(0.4f, -0.5f, 0.0f), glas);
-	scene->addSphere(0.3f, glm::vec3(0.4f, -0.5f, 0.3f), glas);
+	//scene->addSphere(0.3f, glm::vec3(0.4f, -0.5f, 0.3f), glas);
+	scene->addSphere(0.3f, glm::vec3(0.8f, -0.5f, 0.7f), glas);
+	scene->addSphere(0.3f, glm::vec3(-0.8f, -0.6f, 0.7f), mirror);
 
 	glm::mat4x4 transform = glm::mat4x4(1.0f);
 	/*
@@ -234,9 +236,10 @@ std::shared_ptr<Scene> Scene::generateScene() {
 		0.0f, 0.0f, 1.0f, 0.0f, 
 		0.0f, 0.0f, 0.0f, 1.0f);
 	*/
-	transform = glm::translate(transform, glm::vec3(-0.4, -0.5, 0.7));
+	//transform = glm::translate(transform, glm::vec3(-0.4, -0.5, 0.7));
+	transform = glm::translate(transform, glm::vec3(0.0, -0.3, 0.2));
 	transform = glm::rotate(transform, glm::pi<float>() / 3, glm::vec3(1, 1, 1));
-	transform = glm::scale(transform, glm::vec3(0.2, 0.2, 0.2));
+	transform = glm::scale(transform, glm::vec3(0.3, 0.3, 0.3));
 	scene->addMesh(transform, "data/meshes/cube.obj", diffuseCyan);
 	/* Monkey
 	transform = glm::translate(transform, glm::vec3(0.0, -0.5, 0.7));
@@ -247,7 +250,7 @@ std::shared_ptr<Scene> Scene::generateScene() {
 	//scene->addMesh(transform, "data/meshes/bunny.obj", diffuseCyan); // Stanford bunny ~35 000 vertice
 
 	// Add light source
-	std::shared_ptr<EmissiveMaterial> emissiveWhite = std::make_shared<EmissiveMaterial>(glm::vec3(1.0f), 30.0f);
+	std::shared_ptr<EmissiveMaterial> emissiveWhite = std::make_shared<EmissiveMaterial>(glm::vec3(1.0f), 10.0f);
 	//glm::vec3 lv0 = glm::vec3(5.0f, -2.0f, -4.99f);
 	//glm::vec3 lv1 = glm::vec3(7.0f, 0.0f, -4.99f);
 	//glm::vec3 lv2 = glm::vec3(5.0f, 2.0f, -4.99f);
@@ -346,8 +349,8 @@ void Scene::render(std::shared_ptr<Camera> camera) {
 	int width = camera->getPixelWidth();
 	int height = camera->getPixelHeight();
 
-	//m_renderMode = MONTE_CARLO;
-	m_renderMode = CAUSTICS;
+	m_renderMode = MONTE_CARLO;
+	//m_renderMode = CAUSTICS;
 
 	// Randomizer
 	std::random_device rd;
@@ -412,8 +415,8 @@ glm::vec3 Scene::traceRay(std::shared_ptr<Ray> ray, int depth) {
 	else if (ray->hitsTransparentSurface() && !terminateRay) {
 		indirectLight += traceRefractedRay(ray, depth);
 	}
-	else if (!ray->hitsDiffuseSurface() && !terminateRay) {
-		indirectLight += traceRay(reflectedRay, depth + 1) * brdf;
+	else if (!ray->hitsDiffuseSurface() || !terminateRay) { // Note: || for MC and && for PM
+		indirectLight += traceRay(reflectedRay, depth + 1) * brdf * glm::pi<float>();
 	}
 
 	// Compute direct lightning
@@ -444,6 +447,7 @@ glm::vec3 Scene::traceRefractedRay(std::shared_ptr<Ray> ray, int depth) {
 glm::vec3 Scene::traceDiffuseRay(std::shared_ptr<Ray> ray) {
 	glm::vec3 totalLightContribution = glm::vec3(0.0f);
 	glm::vec3 lightContribution, ptOnEmissive;
+	//glm::vec3 difference = glm::vec3(0.0f);
 	const int nrShadowRays = 1;
 
 	for (int lightIndex : m_lightIndices) {
@@ -453,10 +457,12 @@ glm::vec3 Scene::traceDiffuseRay(std::shared_ptr<Ray> ray) {
 			// Create a shadow ray from the ray intersection point towards the a random point on the light
 			ptOnEmissive = emissive->getRandomPointOnSurface((*dis)(*gen), (*dis)(*gen));
 			std::shared_ptr<Ray> shadowRay = ray->createShadowRay(ptOnEmissive);
+			//difference = ptOnEmissive - shadowRay->getStartPt();
 
 			lightContribution += traceShadowRay(ray, shadowRay);
 		}
 		lightContribution *= (emissive->getRadiance() * emissive->getArea()) / nrShadowRays / (glm::pi<float>() * 2.0f);
+		//lightContribution *= emissive->getArea() / nrShadowRays / (glm::pi<float>() * 2.0f);
 		totalLightContribution += lightContribution;
 	}
 
@@ -476,18 +482,19 @@ glm::vec3 Scene::traceShadowRay(std::shared_ptr<Ray> ray, std::shared_ptr<Ray> s
 	if (cosBeta < 0.0f) return glm::vec3(0.0f);
 
 	// Outgoing angle
-	float cosAlpha = glm::dot(-1.0f * shadowRayDirection, shadowRay->getIntersection()->m_normal);
+	float cosAlpha = glm::dot(shadowRay->getIntersection()->m_normal, -shadowRayDirection);
 	if (cosAlpha < 0.0f) return glm::vec3(0.0f);
 
-	float lengthShadowRay = glm::length(shadowRayDirection);
-	float lengthSquared = lengthShadowRay * lengthShadowRay;
+	//float lengthShadowRay = glm::length(shadowRayDirection);
+	//float lengthSquared = lengthShadowRay * lengthShadowRay;
 
 	// Get brdf of surface
 	glm::vec3 brdf = ray->getBRDFValue(shadowRay);
 
 	// Return shadow ray contribution
-	// glm::vec3 radiance = glm::dot(ray->getDirection(), surfaceNormal) * brdf;
-	return (brdf * (cosAlpha * cosBeta) / lengthSquared);
+	glm::vec3 radiance = cosBeta * cosAlpha * brdf;
+	//return brdf * (cosAlpha * cosBeta) / lengthSquared;
+	return glm::clamp(radiance, 0.0f, 1.0f);
 }
 
 glm::vec3 Scene::traceCausticsRay(std::shared_ptr<Ray> ray) {
@@ -519,7 +526,7 @@ glm::vec3 Scene::traceCausticsRay(std::shared_ptr<Ray> ray) {
 
 		// Calculate the radiance
 		radiance += closestPhotons[i].p.m_flux *
-			((distance < PHOTON_RADIUS) ? 1.0f : 0.0f) /
+			((distance < PHOTON_RADIUS) ? 1.0f : 0.0f) / // this affects the black lines (lines disappear if both give 1.0f
 			(projectedArea * glm::pi<float>() * 2.0f) *
 			brdf; // *(glm::pi<float>() * 2.0f); // Hemisphere
 		//*/

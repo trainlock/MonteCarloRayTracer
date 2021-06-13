@@ -37,7 +37,7 @@ public:
 	void render(std::shared_ptr<Camera> camera);
 
 private:
-	const static int MAX_DEPTH = 2;
+	const static int MAX_DEPTH = 3;
 	int m_nrSubsamples, m_nrPhotonEmission;
 	int m_renderMode;
 	std::vector<int> m_lightIndices;
