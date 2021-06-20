@@ -25,7 +25,7 @@ bool AABB::intersect(std::shared_ptr<Ray> ray) const {
 	float tMax = glm::min(glm::min(glm::max(tx0, tx1), glm::max(ty0, ty1)), glm::max(tz0, tz1));
 
 	// If tMin < 0 the ray intersects the AABB but is behind it
-	if (tMin < 0) return false;
+	//if (tMin < 0.0f) return false;
 
 	// If tMin > tMax then ray doesn't intersect the AABB
 	if (tMin > tMax) return false;
@@ -120,7 +120,7 @@ bool OctreeNodeAABB::intersect(std::shared_ptr<Ray> ray) const {
 		glm::vec3 D = ray->getDirection();
 		glm::vec3 rayOrigin = ray->getStartPt();
 		float det, invDet, u, v, t;
-		float tMin = 10000.0f;
+		float tMin = 100000.0f;
 
 		//int triangleNr = 1;
 		// Check intersection for all triangles in this node
@@ -137,10 +137,6 @@ bool OctreeNodeAABB::intersect(std::shared_ptr<Ray> ray) const {
 			// Calculate determinant
 			P = glm::cross(D, e2);
 
-			// Calculate distance from v1 to ray origin
-			T = rayOrigin - v0;
-			Q = glm::cross(T, e1);
-
 			// If determinant is near zero, then the ray lies in plane of triangle
 			det = glm::dot(e1, P);
 			if (std::fabs(det) < FLT_EPSILON) {
@@ -148,19 +144,33 @@ bool OctreeNodeAABB::intersect(std::shared_ptr<Ray> ray) const {
 				continue;
 			}
 
+			// Calculate distance from v1 to ray origin
+			T = rayOrigin - v0;
+			Q = glm::cross(T, e1);
+
 			// Calculate u and v
 			invDet = 1.0f / det;
-			u = glm::dot(P, T) * invDet;
-			v = glm::dot(Q, D) * invDet;
+			u = glm::dot(T, P) * invDet;
+			v = glm::dot(D, Q) * invDet;
 
 			// Check if intersection lies outside of the plane
+			/*
 			if (u + v > 1.0f || u < 0.0f || v < 0.0f) {
+				hasIntersected = false;
+				continue;
+			}
+			*/
+			if (u < 0.0f || u > 1.0f) {
+				hasIntersected = false;
+				continue;
+			}
+			if (v < 0.0f || u + v > 1.0f) {
 				hasIntersected = false;
 				continue;
 			}
 
 			// Calculate the distance from ray to plane
-			t = glm::dot(Q, e2) * invDet;
+			t = glm::dot(e2, Q) * invDet;
 
 			if (t > FLT_EPSILON && t < tMin) {
 				tMin = t;
@@ -182,7 +192,9 @@ bool OctreeNodeAABB::intersect(std::shared_ptr<Ray> ray) const {
 				ray->setRayIntersection(newIntersection);
 				hasIntersected = true;
 			}
-			hasIntersected = false;
+			else {
+				hasIntersected = false;
+			}
 		}
 		return hasIntersected;
 	}

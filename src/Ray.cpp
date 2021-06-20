@@ -1,4 +1,5 @@
 #include "../include/Ray.h"
+#include "../include/Utility.h"
 
 Ray::Ray(glm::vec3 startPt, glm::vec3 direction) 
 	: m_startPt(startPt), m_direction(glm::normalize(direction)), 
@@ -121,13 +122,14 @@ glm::vec3 Ray::getBRDFValue(const glm::vec3 direction) const {
 std::shared_ptr<Ray> Ray::createReflectedRay(const float rand1, const float rand2) const { // Indirect diffuse ray
 	if (!m_intersection) return nullptr;
 
-	glm::vec3 reflectedRayOrigin = m_intersection->m_intersectionPt + m_intersection->m_normal * FLT_EPSILON; // offset;
+	glm::vec3 reflectedRayOrigin = m_intersection->m_intersectionPt + glm::dot(m_direction, m_intersection->m_normal) * FLT_EPSILON; // offset;
 	glm::vec3 reflectedRayDirection = glm::vec3(0.0f);
 
 	if (hitsPerfectReflectorSurface()) { // || hitsTransparentSurface()) {
 		reflectedRayDirection = glm::reflect(m_direction, m_intersection->m_normal);
 	}
 	else { // Reflected ray gets a random direction
+		/*
 		glm::vec3 tangent = m_direction - glm::dot(m_direction, m_intersection->m_normal) * m_intersection->m_normal;
 
 		float inclination = (float)glm::acos(glm::sqrt(rand1));
@@ -142,6 +144,13 @@ std::shared_ptr<Ray> Ray::createReflectedRay(const float rand1, const float rand
 			reflectedRayDirection,
 			azimuth,
 			m_intersection->m_normal));
+		*/
+
+		glm::vec3 surfaceNormal = m_intersection->m_normal;
+
+		// Checkout this function
+		glm::vec3 randomHemisphereDirection = Utility::CosineWeightedHemisphereSampleDirection(surfaceNormal);
+		reflectedRayDirection = randomHemisphereDirection;
 	}
 
 	return std::make_shared<Ray>(reflectedRayOrigin, reflectedRayDirection);
@@ -192,7 +201,7 @@ std::shared_ptr<Ray> Ray::createRefractedRay(std::shared_ptr<Ray> reflectedRay) 
 
 std::shared_ptr<Ray> Ray::createShadowRay(const glm::vec3 ptOnLight) const { // Direct shadow ray
 	if (!m_intersection) return nullptr;
-	glm::vec3 shadowRayOrigin = m_intersection->m_intersectionPt + m_intersection->m_normal * FLT_EPSILON;
+	glm::vec3 shadowRayOrigin = m_intersection->m_intersectionPt + m_intersection->m_normal * m_direction * FLT_EPSILON;
 	glm::vec3 shadowRayDirection = glm::normalize(ptOnLight - shadowRayOrigin);
 	return std::make_shared<Ray>(shadowRayOrigin, shadowRayDirection);
 }

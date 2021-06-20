@@ -217,49 +217,56 @@ std::shared_ptr<Scene> Scene::generateScene() {
 	scene->addCornellWalls();
 
 	std::shared_ptr<LambertianMaterial> diffuseCyan = std::make_shared<LambertianMaterial>(glm::vec3(0.0f, 1.0f, 1.0f));
-	//scene->addBox(glm::vec3(-0.4f, -0.5f, 0.0f), glm::vec3(0.5f, 0.5f, 0.5f), diffuseCyan);
-	//scene->addBox(glm::vec3(-0.4f, -0.5f, 0.7f), glm::vec3(0.5f, 0.5f, 0.5f), diffuseCyan);
-
 	std::shared_ptr<TransparentMaterial> glas = std::make_shared<TransparentMaterial>(1.5f);
 	std::shared_ptr<PerfectReflectorMaterial> mirror = std::make_shared<PerfectReflectorMaterial>();
 	//std::shared_ptr<OrenNayarMaterial> onCyan = std::make_shared<OrenNayarMaterial>(glm::vec3(0.0f, 1.0f, 1.0f), 5.0f);
-	//scene->addSphere(0.3f, glm::vec3(0.4f, -0.5f, 0.0f), glas);
-	//scene->addSphere(0.3f, glm::vec3(0.4f, -0.5f, 0.3f), glas);
-	scene->addSphere(0.3f, glm::vec3(0.8f, -0.5f, 0.7f), glas);
+
+	// Cube #1 + spheres
+	/*
+	scene->addSphere(0.3f, glm::vec3(0.8f, -0.3f, 0.7f), glas);
 	scene->addSphere(0.3f, glm::vec3(-0.8f, -0.6f, 0.7f), mirror);
 
 	glm::mat4x4 transform = glm::mat4x4(1.0f);
-	/*
-	glm::mat4x4 boxTransform = glm::mat4x4( // Identity matrix
-		1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, 0.0f, 
-		0.0f, 0.0f, 1.0f, 0.0f, 
-		0.0f, 0.0f, 0.0f, 1.0f);
-	*/
-	//transform = glm::translate(transform, glm::vec3(-0.4, -0.5, 0.7));
 	transform = glm::translate(transform, glm::vec3(0.0, -0.3, 0.2));
+	//transform = glm::translate(transform, glm::vec3(0.0, -0.3, 0.6));
 	transform = glm::rotate(transform, glm::pi<float>() / 3, glm::vec3(1, 1, 1));
 	transform = glm::scale(transform, glm::vec3(0.3, 0.3, 0.3));
 	scene->addMesh(transform, "data/meshes/cube.obj", diffuseCyan);
-	/* Monkey
-	transform = glm::translate(transform, glm::vec3(0.0, -0.5, 0.7));
-	transform = glm::rotate(transform, 5.0f, glm::vec3(1, 0, 0)); // Angles in degrees
+	*/
+	// Cube #2
+	///*
+	glm::mat4x4 transform = glm::mat4x4(1.0f);
+	transform = glm::translate(transform, glm::vec3(0.0, -0.3, 0.6));
+	transform = glm::rotate(transform, glm::pi<float>() / 3, glm::vec3(1, 1, 1));
+	transform = glm::scale(transform, glm::vec3(0.3, 0.3, 0.3));
+	scene->addMesh(transform, "data/meshes/cube.obj", diffuseCyan);
+	//*/
+	// Suzanne
+	/*
+	glm::mat4x4 transform = glm::mat4x4(1.0f);
+	transform = glm::translate(transform, glm::vec3(0.0, -0.3, 0.6));
 	transform = glm::scale(transform, glm::vec3(0.5, 0.5, 0.5));
 	scene->addMesh(transform, "data/meshes/suzanne.obj", diffuseCyan); // Monkey ~8 000 vertices
 	*/
-	//scene->addMesh(transform, "data/meshes/bunny.obj", diffuseCyan); // Stanford bunny ~35 000 vertice
+	// Bunny
+	/*
+	glm::mat4x4 transform = glm::mat4x4(1.0f);
+	transform = glm::translate(transform, glm::vec3(0.0, -0.3, 0.6));
+	//transform = glm::rotate(transform, 5.0f, glm::vec3(0, 1, 0));
+	transform = glm::scale(transform, glm::vec3(0.5, 0.5, 0.5));
+	scene->addMesh(transform, "data/meshes/bunny.obj", diffuseCyan); // Stanford bunny ~35 000 vertices // TODO: Fix border error and black dots
+	*/
+	// Dragon
+	/*
+	glm::mat4x4 transform = glm::mat4x4(1.0f);
+	transform = glm::translate(transform, glm::vec3(0.0, -0.3, 0.6));
+	transform = glm::translate(transform, glm::vec3(0.0, -0.6, 0.0));
+	transform = glm::scale(transform, glm::vec3(1.0, 1.0, 1.0));
+	scene->addMesh(transform, "data/meshes/dragon.obj", diffuseCyan); // Stanford bunny ~100 000 vertices
+	*/
 
 	// Add light source
 	std::shared_ptr<EmissiveMaterial> emissiveWhite = std::make_shared<EmissiveMaterial>(glm::vec3(1.0f), 10.0f);
-	//glm::vec3 lv0 = glm::vec3(5.0f, -2.0f, -4.99f);
-	//glm::vec3 lv1 = glm::vec3(7.0f, 0.0f, -4.99f);
-	//glm::vec3 lv2 = glm::vec3(5.0f, 2.0f, -4.99f);
-
-	//glm::vec3 lv0 = glm::vec3(-0.35f, 0.99f, 0.35f);
-	//glm::vec3 lv1 = glm::vec3(-0.35f, 0.99f, -0.35f);
-	//glm::vec3 lv2 = glm::vec3(0.35f, 0.99f, -0.35f);
-	//glm::vec3 lv3 = glm::vec3(0.35f, 0.99f, 0.35f);
-
 	glm::vec3 lv0 = glm::vec3(-0.3f, 0.99f, 1.2f);
 	glm::vec3 lv1 = glm::vec3(-0.3f, 0.99f, 0.6f);
 	glm::vec3 lv2 = glm::vec3(0.3f, 0.99f, 0.6f);
@@ -349,8 +356,8 @@ void Scene::render(std::shared_ptr<Camera> camera) {
 	int width = camera->getPixelWidth();
 	int height = camera->getPixelHeight();
 
-	m_renderMode = MONTE_CARLO;
-	//m_renderMode = CAUSTICS;
+	//m_renderMode = MONTE_CARLO;
+	m_renderMode = CAUSTICS;
 
 	// Randomizer
 	std::random_device rd;
@@ -415,9 +422,14 @@ glm::vec3 Scene::traceRay(std::shared_ptr<Ray> ray, int depth) {
 	else if (ray->hitsTransparentSurface() && !terminateRay) {
 		indirectLight += traceRefractedRay(ray, depth);
 	}
-	else if (!ray->hitsDiffuseSurface() || !terminateRay) { // Note: || for MC and && for PM
+	else if (ray->hitsPerfectReflectorSurface() && !terminateRay) {
+		indirectLight += traceRay(reflectedRay, depth + 1) * 0.98f;
+	}
+	/*
+	else if (!terminateRay) { // Note: || for MC and && for PM
 		indirectLight += traceRay(reflectedRay, depth + 1) * brdf * glm::pi<float>();
 	}
+	*/
 
 	// Compute direct lightning
 	if (ray->hitsDiffuseSurface()) {
@@ -491,8 +503,17 @@ glm::vec3 Scene::traceShadowRay(std::shared_ptr<Ray> ray, std::shared_ptr<Ray> s
 	// Get brdf of surface
 	glm::vec3 brdf = ray->getBRDFValue(shadowRay);
 
+	glm::vec3 lightNormal = shadowRay->getIntersection()->m_normal;
+	float lightFactor = glm::dot(-shadowRay->getDirection(), lightNormal);
+	if (lightFactor < FLT_EPSILON) {
+		return glm::vec3(0.0f);
+	}
+
+	// Direct diffuse lighting.
+	const glm::vec3 radiance = lightFactor * brdf;
+
 	// Return shadow ray contribution
-	glm::vec3 radiance = cosBeta * cosAlpha * brdf;
+	//glm::vec3 radiance = cosBeta * cosAlpha * brdf;
 	//return brdf * (cosAlpha * cosBeta) / lengthSquared;
 	return glm::clamp(radiance, 0.0f, 1.0f);
 }
@@ -554,7 +575,7 @@ glm::vec3 Scene::tracePhotonRay(std::shared_ptr<Ray> ray, glm::vec3 photonRadian
 	else if (ray->hitsTransparentSurface() && !terminateRay) {
 		photonRadiance += traceRefractedPhotonRay(ray, photonRadiance, depth);
  	}
-	else if (!ray->hitsEmissiveSurface() && !terminateRay) { // Should it be && or ||?? Probably && 
+	else if (!ray->hitsPerfectReflectorSurface() && !terminateRay) { // Should it be && or ||?? Probably && 
 		// TODO: Test which should be used (&& or ||)
 		// Continue traversing
 		photonRadiance += tracePhotonRay(reflectedRay, photonRadiance, depth + 1) * brdf;

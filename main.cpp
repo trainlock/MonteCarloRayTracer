@@ -26,7 +26,7 @@ int main() {
 	std::shared_ptr<Scene> scene = Scene::generateScene();
 
 	// Build photon map
-	//scene->generatePhotonMap(NR_PHOTON_EMISSION);
+	scene->generatePhotonMap(NR_PHOTON_EMISSION);
 
 	time(&startRenderTime);
 	double prerenderTime = difftime(startRenderTime, startTime);
